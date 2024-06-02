@@ -1,6 +1,6 @@
-## Código
+## Convertir un archivo netcdf a geojson
 
-Como convertir un netcdf a un geojson
+Las librerías previamente instaladas deben ser:
 
 ``` r
 library("terra")
@@ -23,6 +23,10 @@ library("geojsonio")
     ## 
     ##     pretty
 
+Abrimos un archivo netcdf (en este caso será
+“WRFDETAR_01H_20240101_12_000.nc”) y será transformado a un polígono y
+escrito a un archivo shp:
+
 ``` r
 nc <- rast("WRFDETAR_01H_20240101_12_000.nc")
 
@@ -31,12 +35,11 @@ temp <- as.polygons(nc[[2]])
 writeVector(temp, "temp.shp", overwrite = TRUE)
 ```
 
-    ## Warning in x@cpp$write(filename, layer, filetype, insert[1], overwrite[1], :
-    ## GDAL Message 6: dataset temp.shp does not support layer creation option
-    ## OVERWRITE
+Finalmente, se utiliza la función file_to_geojson para crear el archivo
+geojson:
 
 ``` r
 s <- file_to_geojson("temp.shp", method = "local", output = ".")
 ```
 
-    ## Success! File is at file24ccd5bb2f9c1.geojson
+    ## Success! File is at file24de91c6adc27.geojson
