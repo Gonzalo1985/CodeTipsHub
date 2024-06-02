@@ -4,24 +4,8 @@ Las librerías previamente instaladas deben ser:
 
 ``` r
 library("terra")
-```
-
-    ## terra 1.7.65
-
-``` r
 library("geojsonio")
 ```
-
-    ## Registered S3 method overwritten by 'geojsonsf':
-    ##   method        from   
-    ##   print.geojson geojson
-
-    ## 
-    ## Attaching package: 'geojsonio'
-
-    ## The following object is masked from 'package:base':
-    ## 
-    ##     pretty
 
 Abrimos un archivo netcdf (en este caso será
 “WRFDETAR_01H_20240101_12_000.nc”) y será transformado a un polígono y
@@ -42,4 +26,4 @@ geojson:
 s <- file_to_geojson("temp.shp", method = "local", output = ".")
 ```
 
-    ## Success! File is at file24de91c6adc27.geojson
+    ## Success! File is at file24e546b51aa63.geojson
