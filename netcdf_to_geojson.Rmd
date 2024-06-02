@@ -1,8 +1,10 @@
 ---
 title: "Genera geojson a partir de un netcdf"
-output: html_document
 author: Gonzalo Diaz
-date: "2024-05-31"
+date: "Last review 2024-05-31"
+output:
+  md_document:
+    variant: markdown_github
 ---
 
 ```{r setup, include=FALSE}
