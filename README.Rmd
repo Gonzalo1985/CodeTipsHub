@@ -1,7 +1,8 @@
 ---
-title: "Genera geojson a partir de un netcdf"
+title: "README"
 author: Gonzalo Diaz
 date: "Last review 2024-05-31"
+always_allow_html: yes
 output:
   md_document:
     variant: markdown_github
@@ -44,4 +45,32 @@ for (i in 1:4){
   s <- file_to_geojson(paste0("temps_", i, ".shp"), method = "local",
                        output = paste0("temps_", i))
 }
+```
+
+
+## Visualizar geojson en mapa Leaflet
+
+Las librerías previamente instaladas deben ser:
+```{r, message = FALSE}
+library("sf")
+library("leaflet")
+```
+
+Primero se abre el geojson a graficar:
+```{r}
+T2.geojson <- read_sf("temps_1.geojson") 
+```
+
+Luego se grafica la variable del geojson, en este caso temperatura:
+```{r}
+pal <- colorNumeric("viridis", NULL)
+
+mapa <- leaflet(T2.geojson) %>%
+  addTiles() %>%
+  addPolygons(stroke = FALSE, smoothFactor = 0.8, fillOpacity = 0.7,
+              fillColor = ~pal(T2),
+              label = ~paste0(T2, ": ", formatC(T2, big.mark = ","))) %>%
+  addLegend(pal = pal, values = ~T2, opacity = 1.0)
+
+mapa
 ```
