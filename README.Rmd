@@ -5,7 +5,7 @@ date: "Last review 2024-05-31"
 always_allow_html: yes
 output:
   md_document:
-    variant: markdown_github
+    variant: gfm
 ---
 
 ```{r setup, include=FALSE}

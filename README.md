@@ -81,4 +81,4 @@ mapa <- leaflet(T2.geojson) %>%
 mapa
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
