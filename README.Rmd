@@ -73,7 +73,7 @@ mapa <- leaflet(T2.geojson) %>%
               label = ~paste0(T2, ": ", formatC(T2, big.mark = ","))) %>%
   addLegend(pal = pal, values = ~T2, opacity = 1.0)
 
-mapa
+#mapa
 ```
 
 
