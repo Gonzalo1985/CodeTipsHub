@@ -45,3 +45,22 @@ for (i in 1:4){
                        output = paste0("temps_", i))
 }
 ```
+
+## Ploting MCD12Q1 MODIS Product
+
+The data is available in data folder. First, open the data with terra package
+```{r}
+list.pathname <- list.files("./data", pattern = "hdf", full.names = TRUE)
+
+data <- lapply(list.pathname, FUN = rast)
+```
+
+Now, creation of mosaic with each hdf.
+```{r}
+data.mosaic <- mosaic(data[[1]], data[[2]], data[[3]], data[[4]], data[[5]], data[[6]], data[[7]], data[[8]], data[[9]])
+```
+
+Lastly, ploting of data with no change of projection
+```{r}
+plot(data.mosaic)
+```
