@@ -27,10 +27,10 @@ library("geojsonio")
 
 Abrimos varios archivos netcdf y lo transformamos a proyección lat/lon y transformamos a polígono:
 ```{r, warning = FALSE}
-nc <- rast(c("WRFDETAR_01H_20240101_12_000.nc",
-             "WRFDETAR_01H_20240101_12_001.nc",
-             "WRFDETAR_01H_20240101_12_002.nc",
-             "WRFDETAR_01H_20240101_12_003.nc"))
+nc <- rast(c("./data/WRFDETAR_01H_20240101_12_000.nc",
+             "./data/WRFDETAR_01H_20240101_12_001.nc",
+             "./data/WRFDETAR_01H_20240101_12_002.nc",
+             "./data/WRFDETAR_01H_20240101_12_003.nc"))
 
 T2.positions <- which(names(nc) == "T2")
 
@@ -76,7 +76,7 @@ mapa <- leaflet(T2.geojson) %>%
               label = ~paste0(T2, ": ", formatC(T2, big.mark = ","))) %>%
   addLegend(pal = pal, values = ~T2, opacity = 1.0)
 
-mapa
+# mapa
 ```
 
 
