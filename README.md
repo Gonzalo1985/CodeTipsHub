@@ -61,6 +61,7 @@ for (i in 1:4){
 
     ## Success! File is at temps_4.geojson
 
+<<<<<<< HEAD
 ## Ploting MCD12Q1 MODIS Product
 
 The data is available in data folder. First, open the data with terra
@@ -87,3 +88,36 @@ plot(data.mosaic)
 ```
 
 ![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+=======
+## Visualizar geojson en mapa Leaflet
+
+Las librerías previamente instaladas deben ser:
+
+``` r
+library("sf")
+library("leaflet")
+```
+
+Primero se abre el geojson a graficar:
+
+``` r
+T2.geojson <- read_sf("temps_1.geojson") 
+```
+
+Luego se grafica la variable del geojson, en este caso temperatura:
+
+``` r
+pal <- colorNumeric("viridis", NULL)
+
+mapa <- leaflet(T2.geojson) %>%
+  addTiles() %>%
+  addPolygons(stroke = FALSE, smoothFactor = 0.8, fillOpacity = 0.7,
+              fillColor = ~pal(T2),
+              label = ~paste0(T2, ": ", formatC(T2, big.mark = ","))) %>%
+  addLegend(pal = pal, values = ~T2, opacity = 1.0)
+
+mapa
+```
+
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+>>>>>>> e89196cddb9c71f05347a71e2b344a2809515f5b

@@ -1,10 +1,11 @@
 ---
-title: "Genera geojson a partir de un netcdf"
+title: "README"
 author: Gonzalo Diaz
 date: "Last review 2024-05-31"
+always_allow_html: yes
 output:
   md_document:
-    variant: markdown_github
+    variant: gfm
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Convertir un archivo netcdf a geojson
 
 Las librerías previamente instaladas deben ser:
-```{r, message = FALSE}
+```{r, message = FALSE, warning = FALSE}
 library("terra")
 library("geojsonio")
 ```
@@ -46,6 +47,7 @@ for (i in 1:4){
 }
 ```
 
+<<<<<<< HEAD
 ## Ploting MCD12Q1 MODIS Product
 
 The data is available in data folder. First, open the data with terra package
@@ -63,4 +65,32 @@ data.mosaic <- mosaic(data[[1]], data[[2]], data[[3]], data[[4]], data[[5]], dat
 Lastly, ploting of data with no change of projection
 ```{r}
 plot(data.mosaic)
+=======
+
+## Visualizar geojson en mapa Leaflet
+
+Las librerías previamente instaladas deben ser:
+```{r, message = FALSE, warning = FALSE}
+library("sf")
+library("leaflet")
+```
+
+Primero se abre el geojson a graficar:
+```{r}
+T2.geojson <- read_sf("temps_1.geojson") 
+```
+
+Luego se grafica la variable del geojson, en este caso temperatura:
+```{r}
+pal <- colorNumeric("viridis", NULL)
+
+mapa <- leaflet(T2.geojson) %>%
+  addTiles() %>%
+  addPolygons(stroke = FALSE, smoothFactor = 0.8, fillOpacity = 0.7,
+              fillColor = ~pal(T2),
+              label = ~paste0(T2, ": ", formatC(T2, big.mark = ","))) %>%
+  addLegend(pal = pal, values = ~T2, opacity = 1.0)
+
+mapa
+>>>>>>> e89196cddb9c71f05347a71e2b344a2809515f5b
 ```
