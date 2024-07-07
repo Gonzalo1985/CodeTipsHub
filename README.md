@@ -88,7 +88,10 @@ mapa <- leaflet(T2.geojson) %>%
 #mapa
 ```
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-![](prueba.html)<!-- -->
+<div id="htmlwidget_container">
+  <div class="leaflet html-widget html-fill-item" id="htmlwidget-89cdd73cb22bb4e8118b" style="width:100%;height:400px;"></div>
+</div>
+<script type="application/json" data-for="htmlwidget-89cdd73cb22bb4e8118b">
 
 ## Ploting MCD12Q1 MODIS Product
 
