@@ -76,6 +76,10 @@ mapa <- leaflet(T2.geojson) %>%
               label = ~paste0(T2, ": ", formatC(T2, big.mark = ","))) %>%
   addLegend(pal = pal, values = ~T2, opacity = 1.0)
 
+mapa <- leaflet() %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  addMarkers(lng=174.768, lat=-36.852, popup="The birthplace of R")
+
 mapa
 ```
 
