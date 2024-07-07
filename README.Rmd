@@ -1,5 +1,5 @@
 ---
-title: README
+title: Some tools for R
 subtitle: R.tips
 tags: [R,leaflet,Jekyll, html, maps]
 leafletmap: true
@@ -17,15 +17,15 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## Convertir un archivo netcdf a geojson
+## Convert a netcdf file to geojson
 
-Las librerías previamente instaladas deben ser:
+The previously installed libraries must be:
 ```{r, message = FALSE, warning = FALSE}
 library("terra")
 library("geojsonio")
 ```
 
-Abrimos varios archivos netcdf y lo transformamos a proyección lat/lon y transformamos a polígono:
+Open several netcdf files and transform it to lat/lon projection and transform it to polygon. The files are located in the data folder:
 ```{r, warning = FALSE}
 nc <- rast(c("./data/WRFDETAR_01H_20240101_12_000.nc",
              "./data/WRFDETAR_01H_20240101_12_001.nc",
@@ -41,7 +41,7 @@ T2.nc.repro <- project(T2.nc, "+proj=longlat +datum=WGS84")
 T2.polygons <- lapply(T2.nc, as.polygons)
 ```
 
-Finalmente, se escribe un archivo shp y se utiliza la función file_to_geojson para crear el archivo geojson para cada tiempo:
+Finally, a shp file is written and the file_to_geojson function is used to create the geojson file for each time:
 ```{r}
 for (i in 1:4){
   writeVector(T2.polygons[[i]], paste0("temps_", i, ".shp"), overwrite = TRUE)
@@ -52,20 +52,20 @@ for (i in 1:4){
 ```
 
 
-## Visualizar geojson en mapa Leaflet
+## View geojson in Leaflet map
 
-Las librerías previamente instaladas deben ser:
+The previously installed libraries must be:
 ```{r, message = FALSE, warning = FALSE}
 library("sf")
 library("leaflet")
 ```
 
-Primero se abre el geojson a graficar:
+First the geojson to be graphed is opened:
 ```{r}
 T2.geojson <- read_sf("temps_1.geojson") 
 ```
 
-Luego se grafica la variable del geojson, en este caso temperatura:
+Finally, the geojson variable is graphed, in this case temperature:
 ```{r}
 pal <- colorNumeric("viridis", NULL)
 
@@ -75,10 +75,6 @@ mapa <- leaflet(T2.geojson) %>%
               fillColor = ~pal(T2),
               label = ~paste0(T2, ": ", formatC(T2, big.mark = ","))) %>%
   addLegend(pal = pal, values = ~T2, opacity = 1.0)
-
-mapa <- leaflet() %>%
-  addTiles() %>%  # Add default OpenStreetMap map tiles
-  addMarkers(lng=174.768, lat=-36.852, popup="The birthplace of R")
 
 mapa
 ```
