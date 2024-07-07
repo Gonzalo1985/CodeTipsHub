@@ -1,14 +1,11 @@
 ---
-title: Some tools for R
-subtitle: R.tips
-tags: [R,leaflet,Jekyll, html, maps]
-leafletmap: true
+title: "README"
+author: Gonzalo Diaz
+date: "Last review 2024-07-07"
 always_allow_html: yes
-last_modified_at: 2024-07-06
-output: 
+output:
   md_document:
     variant: gfm
-    preserve_yaml: true
 ---
 
 ```{r setup, include=FALSE}
@@ -17,85 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## Convert a netcdf file to geojson
+## R.tips
 
-The previously installed libraries must be:
-```{r, message = FALSE, warning = FALSE}
-library("terra")
-library("geojsonio")
-```
-
-Open several netcdf files and transform it to lat/lon projection and transform it to polygon. The files are located in the data folder:
-```{r, warning = FALSE}
-nc <- rast(c("./data/WRFDETAR_01H_20240101_12_000.nc",
-             "./data/WRFDETAR_01H_20240101_12_001.nc",
-             "./data/WRFDETAR_01H_20240101_12_002.nc",
-             "./data/WRFDETAR_01H_20240101_12_003.nc"))
-
-T2.positions <- which(names(nc) == "T2")
-
-T2.nc <- nc[[T2.positions]]
-
-T2.nc.repro <- project(T2.nc, "+proj=longlat +datum=WGS84")
-
-T2.polygons <- lapply(T2.nc, as.polygons)
-```
-
-Finally, a shp file is written and the file_to_geojson function is used to create the geojson file for each time:
-```{r}
-for (i in 1:4){
-  writeVector(T2.polygons[[i]], paste0("temps_", i, ".shp"), overwrite = TRUE)
-
-  s <- file_to_geojson(paste0("temps_", i, ".shp"), method = "local",
-                       output = paste0("temps_", i))
-}
-```
-
-
-## View geojson in Leaflet map
-
-The previously installed libraries must be:
-```{r, message = FALSE, warning = FALSE}
-library("sf")
-library("leaflet")
-```
-
-First the geojson to be graphed is opened:
-```{r}
-T2.geojson <- read_sf("temps_1.geojson") 
-```
-
-Finally, the geojson variable is graphed, in this case temperature:
-```{r}
-pal <- colorNumeric("viridis", NULL)
-
-mapa <- leaflet(T2.geojson) %>%
-  addTiles() %>%
-  addPolygons(stroke = FALSE, smoothFactor = 0.8, fillOpacity = 0.7,
-              fillColor = ~pal(T2),
-              label = ~paste0(T2, ": ", formatC(T2, big.mark = ","))) %>%
-  addLegend(pal = pal, values = ~T2, opacity = 1.0)
-
-mapa
-```
-
-
-## Ploting MCD12Q1 MODIS Product
-
-The data is available in data folder. First, open the data with terra package
-```{r}
-list.pathname <- list.files("./data", pattern = "hdf", full.names = TRUE)
-
-data <- lapply(list.pathname, FUN = rast)
-```
-
-Now, creation of mosaic with each hdf.
-```{r}
-data.mosaic <- mosaic(data[[1]], data[[2]], data[[3]], data[[4]], data[[5]], data[[6]], data[[7]], data[[8]], data[[9]])
-```
-
-Lastly, ploting of data with no change of projection, the numbers represent soil type
-```{r}
-plot(data.mosaic$LC_Type1)
-```
-
+Some tips for R language. Please visit: <a href="https://gonzalo1985.github.io/R.tips/">https://gonzalo1985.github.io/R.tips/</a>
