@@ -99,3 +99,12 @@ Lastly, ploting of data with no change of projection, the numbers represent soil
 plot(data.mosaic$LC_Type1)
 ```
 
+If the projection should be in longlat run:
+```{r}
+data.mosaic.repro <- project(data.mosaic$LC_Type1, "+proj=longlat +datum=WGS84", method = "bilinear")
+```
+
+And plot again:
+```{r}
+plot(data.mosaic.repro)
+```
