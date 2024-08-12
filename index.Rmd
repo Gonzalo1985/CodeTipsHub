@@ -1,6 +1,6 @@
 ---
-title: Some tools for R
-subtitle: R.tips
+title: Code Tips for R
+subtitle: R language
 tags: [R,leaflet,Jekyll, html, maps]
 leafletmap: true
 always_allow_html: yes

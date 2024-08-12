@@ -1,4 +1,4 @@
-## R.tips
+## Code Tips Hub
 
 Some tips for R language. Please visit:
-<a href="https://gonzalo1985.github.io/R.tips/">https://gonzalo1985.github.io/R.tips/</a>
+<a href="https://gonzalo1985.github.io/CodeTipsHub/">https://gonzalo1985.github.io/CodeTipsHub/</a>
