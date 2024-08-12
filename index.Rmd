@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+<li><a href="QGIS.html">New Page</a></li>
+
 ## Convert a netcdf file to geojson
 
 The previously installed libraries must be:
