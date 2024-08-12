@@ -1,6 +1,6 @@
 ---
 title: Tips for QGIS
-subtitle: QGIS software
+subtitle: Gonzalo M. Díaz
 tags: [R,leaflet,Jekyll, html, maps]
 leafletmap: true
 always_allow_html: yes
@@ -17,11 +17,21 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## This is a test
+## Basin delimitation with DEM
 
-Under construction
-```{r, message = FALSE, warning = FALSE}
-library("terra")
-library("geojsonio")
+### Open data and r.fill.dir tool
+
+Open the version of QGIS called "QGIS Desktop with GRASS". First, the DEM file in tif format must be opened. Then the correction of imperfection in the image should be resolved with the *'r.fill.dir'* tool. Look for the tool in the Processing Toolbox of QGIS and look for *'r.fill.dir'*:
+```{r, message = FALSE, echo = FALSE, warning = FALSE, out.width = "100%", out.height = "50%"}
+knitr::include_graphics("./index_files/figure-gfm/Fig1_QGIS.png")
+```
+
+**It is always recommended to work in EPSG:4326 projection.** Select the original DEM in the window that opens and run the tool with the Run button.
+
+### r.watershed tool
+
+After first tool, look for *'r.watershed tool'* in the Processing Toolbox and select the DEM corrected in previous step. In the 'Minimum size of exterior watershed basin' option change the value to 30 and click on the 'Enable Single Flow Direction'. After all this, run the tool with the Run button.
+```{r, message = FALSE, echo = FALSE, warning = FALSE, out.width = "100%", out.height = "50%"}
+knitr::include_graphics("./index_files/figure-gfm/Fig2_QGIS.png")
 ```
 
