@@ -10,6 +10,9 @@ output:
     preserve_yaml: true
 ---
 
+This is a post for basin delimitation using DEM images
+
+
 ## Basin delimitation with DEM
 
 ### Open data and r.fill.dir tool
