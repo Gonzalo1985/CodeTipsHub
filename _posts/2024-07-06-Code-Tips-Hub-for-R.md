@@ -1,5 +1,6 @@
 ---
 title: Code Tips Hub for R
+layout: post
 subtitle: Gonzalo M. Díaz
 leafletmap: true
 always_allow_html: yes
@@ -9,6 +10,9 @@ output:
     variant: gfm
     preserve_yaml: true
 ---
+
+This is a post for the management of netcdf data and its transformation to geojson, among other processing:
+
 
 ## Convert a netcdf file to geojson
 
