@@ -85,7 +85,7 @@ mapa <- leaflet(T2.geojson) %>%
   addLegend(pal = pal, values = ~T2, opacity = 1.0)
 ```
 
-<iframe src="/assets/mapa.html" width="600" height="400">
+<iframe src="./assets/mapa.html" width="600" height="400">
 </iframe>
 
 ## Ploting MCD12Q1 MODIS Product
