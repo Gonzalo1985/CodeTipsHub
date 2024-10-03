@@ -1,7 +1,6 @@
 ---
-title: Tips for QGIS
+title: Code Tips Hub for QGIS
 subtitle: Gonzalo M. Díaz
-tags: [R,leaflet,Jekyll, html, maps]
 leafletmap: true
 always_allow_html: yes
 last_modified_at: 2024-07-06
