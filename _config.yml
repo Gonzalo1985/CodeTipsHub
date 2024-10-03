@@ -1,4 +1,4 @@
-title: "Blog Title"
+title: "Web page for Code Tips Hub"
 author: "Gonzalo M. Díaz"
 description: "Made with Inspiration"
 permalink: /:title/
@@ -16,7 +16,6 @@ minimal: false             # use a dark header
 # Menu
 
 navigation:                # accepts {file, title, url, icon, sidebaricon}
-  - {title: "Home", file: "index.html", icon: home}
   - {title: "R tips", file: "Page01_R.html"}
   - {title: "QGIS tips", file: "Page02_QGIS.html"}
 
