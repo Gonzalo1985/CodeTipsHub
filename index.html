@@ -3,10 +3,9 @@ layout: page
 title: ""
 ---
 
-This is a space to learn some specific tips or tasks for different programming languages and softwares:
+{% if site.show_excerpts %}
+  {% include home.html %}
+{% else %}
+  {% include archive.html title="Posts" %}
+{% endif %}
 
-<p>Index:</p>
-<ul>
-  <li>R</li>
-  <li>QGIS</li>
-</ul>
