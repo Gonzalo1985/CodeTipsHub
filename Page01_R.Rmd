@@ -76,7 +76,8 @@ mapa <- leaflet(T2.geojson) %>%
 
 mapa
 ```
-<iframe src="mapa.html" width="600" height="400"></iframe>
+
+<iframe src="/assets/mapa.html" width="600" height="400"></iframe>
 
 
 ## Ploting MCD12Q1 MODIS Product
@@ -99,7 +100,7 @@ plot(data.mosaic$LC_Type1)
 ```
 
 If the projection should be in longlat run:
-```{r}
+```{r, message = FALSE}
 data.mosaic.repro <- project(data.mosaic$LC_Type1, "+proj=longlat +datum=WGS84", method = "bilinear")
 ```
 
