@@ -76,6 +76,7 @@ mapa <- leaflet(T2.geojson) %>%
 
 mapa
 ```
+<iframe src="mapa.html" width="600" height="400"></iframe>
 
 
 ## Ploting MCD12Q1 MODIS Product
