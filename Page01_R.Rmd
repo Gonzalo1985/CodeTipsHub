@@ -1,5 +1,5 @@
 ---
-title: Code Tips for R
+title: Code Tips Hub for R
 subtitle: Gonzalo M. Díaz
 leafletmap: true
 always_allow_html: yes
