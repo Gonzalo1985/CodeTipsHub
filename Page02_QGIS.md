@@ -20,7 +20,7 @@ DEM file in tif format must be opened. Then the correction of
 imperfection in the image should be resolved with the *‘r.fill.dir’*
 tool. Look for the tool in the Processing Toolbox of QGIS and look for
 *‘r.fill.dir’*:
-<img src="./index_files/figure-gfm/Fig1_QGIS.png" width="100%" height="50%" />
+![Figura](/index_files/figure-gfm/Fig1_QGIS.png)
 
 **It is always recommended to work in EPSG:4326 projection.** Select the
 original DEM in the window that opens and run the tool with the Run
