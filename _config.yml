@@ -16,8 +16,8 @@ minimal: false             # use a dark header
 # Menu
 
 navigation:                # accepts {file, title, url, icon, sidebaricon}
-  - {title: "R tips", file: "Page01_R.html"}
-  - {title: "QGIS tips", file: "Page02_QGIS.html"}
+  - {title: "R tips", file: "./Page01_R.html"}
+  - {title: "QGIS tips", file: "./Page02_QGIS.html"}
 
 external:                  # shows a footer with social links - for available icons see fontawesome.com/icons
   - {title: Mail, icon: envelope, url: "mailto:gonzalomartindiaz22@gmail.com"}
