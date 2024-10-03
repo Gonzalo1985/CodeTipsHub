@@ -98,8 +98,8 @@ plot(data.mosaic$LC_Type1)
 ```
 
 If the projection should be in longlat run:
-```{r, message = FALSE, results = FALSE}
-data.mosaic.repro <- project(data.mosaic$LC_Type1, "+proj=longlat +datum=WGS84", method = "bilinear")
+```{r}
+data.mosaic.repro <- project(data.mosaic$LC_Type1, "+proj=longlat +datum=WGS84", method = "bilinear", progress = FALSE)
 ```
 
 And plot again:

@@ -49,11 +49,23 @@ for (i in 1:4){
 }
 ```
 
+    ## Warning in x@cpp$write(filename, layer, filetype, insert[1], overwrite[1], : GDAL Message 6: dataset temps_1.shp does not support layer
+    ## creation option OVERWRITE
+
     ## Success! File is at temps_1.geojson
+
+    ## Warning in x@cpp$write(filename, layer, filetype, insert[1], overwrite[1], : GDAL Message 6: dataset temps_2.shp does not support layer
+    ## creation option OVERWRITE
 
     ## Success! File is at temps_2.geojson
 
+    ## Warning in x@cpp$write(filename, layer, filetype, insert[1], overwrite[1], : GDAL Message 6: dataset temps_3.shp does not support layer
+    ## creation option OVERWRITE
+
     ## Success! File is at temps_3.geojson
+
+    ## Warning in x@cpp$write(filename, layer, filetype, insert[1], overwrite[1], : GDAL Message 6: dataset temps_4.shp does not support layer
+    ## creation option OVERWRITE
 
     ## Success! File is at temps_4.geojson
 
@@ -119,10 +131,8 @@ plot(data.mosaic$LC_Type1)
 If the projection should be in longlat run:
 
 ``` r
-data.mosaic.repro <- project(data.mosaic$LC_Type1, "+proj=longlat +datum=WGS84", method = "bilinear")
+data.mosaic.repro <- project(data.mosaic$LC_Type1, "+proj=longlat +datum=WGS84", method = "bilinear", progress = FALSE)
 ```
-
-    ## |---------|---------|---------|---------|=========================================                                          
 
 And plot again:
 
