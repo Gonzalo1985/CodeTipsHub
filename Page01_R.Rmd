@@ -73,8 +73,6 @@ mapa <- leaflet(T2.geojson) %>%
               fillColor = ~pal(T2),
               label = ~paste0(T2, ": ", formatC(T2, big.mark = ","))) %>%
   addLegend(pal = pal, values = ~T2, opacity = 1.0)
-
-mapa
 ```
 
 <iframe src="/assets/mapa.html" width="600" height="400"></iframe>
@@ -100,7 +98,7 @@ plot(data.mosaic$LC_Type1)
 ```
 
 If the projection should be in longlat run:
-```{r, message = FALSE}
+```{r, message = FALSE, results = FALSE}
 data.mosaic.repro <- project(data.mosaic$LC_Type1, "+proj=longlat +datum=WGS84", method = "bilinear")
 ```
 
