@@ -1,0 +1,10 @@
+---
+layout: default
+title: "Home"
+---
+
+{% if site.show_excerpts %}
+  {% include Page01_R.html %}
+{% else %}
+  {% include archive.html title="Posts" %}
+{% endif %}
