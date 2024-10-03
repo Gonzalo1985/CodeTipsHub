@@ -45,29 +45,17 @@ for (i in 1:4){
   writeVector(T2.polygons[[i]], paste0("temps_", i, ".shp"), overwrite = TRUE)
 
   s <- file_to_geojson(paste0("temps_", i, ".shp"), method = "local",
-                       output = paste0("temps_", i))
+                       output = paste0("./geojson/temps_", i))
 }
 ```
 
-    ## Warning in x@cpp$write(filename, layer, filetype, insert[1], overwrite[1], : GDAL Message 6: dataset temps_1.shp does not support layer
-    ## creation option OVERWRITE
+    ## Success! File is at ./geojson/temps_1.geojson
 
-    ## Success! File is at temps_1.geojson
+    ## Success! File is at ./geojson/temps_2.geojson
 
-    ## Warning in x@cpp$write(filename, layer, filetype, insert[1], overwrite[1], : GDAL Message 6: dataset temps_2.shp does not support layer
-    ## creation option OVERWRITE
+    ## Success! File is at ./geojson/temps_3.geojson
 
-    ## Success! File is at temps_2.geojson
-
-    ## Warning in x@cpp$write(filename, layer, filetype, insert[1], overwrite[1], : GDAL Message 6: dataset temps_3.shp does not support layer
-    ## creation option OVERWRITE
-
-    ## Success! File is at temps_3.geojson
-
-    ## Warning in x@cpp$write(filename, layer, filetype, insert[1], overwrite[1], : GDAL Message 6: dataset temps_4.shp does not support layer
-    ## creation option OVERWRITE
-
-    ## Success! File is at temps_4.geojson
+    ## Success! File is at ./geojson/temps_4.geojson
 
 ## View geojson in Leaflet map
 
@@ -81,7 +69,7 @@ library("leaflet")
 First the geojson to be graphed is opened:
 
 ``` r
-T2.geojson <- read_sf("temps_1.geojson") 
+T2.geojson <- read_sf("./geojson/temps_1.geojson") 
 ```
 
 Finally, the geojson variable is graphed, in this case temperature:
