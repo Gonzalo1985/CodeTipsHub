@@ -89,7 +89,7 @@ mapa <- leaflet(T2.geojson) %>%
   addLegend(pal = pal, values = ~T2, opacity = 1.0)
 ```
 
-<iframe src="/assets/mapa.html" width="600" height="400">
+<iframe src="../assets/mapa.html" width="600" height="400">
 </iframe>
 
 ## Ploting MCD12Q1 MODIS Product
@@ -118,7 +118,7 @@ represent soil type
 plot(data.mosaic$LC_Type1)
 ```
 
-![](Page01_R_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](../Page01_R_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 If the projection should be in longlat run:
 
@@ -132,4 +132,4 @@ And plot again:
 plot(data.mosaic.repro)
 ```
 
-![](Page01_R_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](../Page01_R_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
