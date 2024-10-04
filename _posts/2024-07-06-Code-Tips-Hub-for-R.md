@@ -1,5 +1,5 @@
 ---
-title: Code Tips Hub for R
+title: Transformation from netcdf to geojson
 layout: post
 subtitle: Gonzalo M. Díaz
 leafletmap: true
@@ -11,7 +11,7 @@ output:
     preserve_yaml: true
 ---
 
-This is a post for the management of netcdf data and its transformation to geojson, among other processing
+This is a post for the management of netcdf data and its transformation to geojson
 
 
 ## Convert a netcdf file to geojson
