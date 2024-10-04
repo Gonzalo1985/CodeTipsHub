@@ -18,7 +18,7 @@ minimal: false             # use a dark header
 navigation:                # accepts {file, title, url, icon, sidebaricon}
   - {title: "R tips", file: "Page01_R.md"}
   - {title: "QGIS tips", file: "Page02_QGIS.md"}
-  - {title: "CV", file: "/CV_DIAZ_Gonzalo.pdf"}
+  - {title: "CV", url: "/CV_DIAZ_Gonzalo.pdf"}
 
 external:                  # shows a footer with social links - for available icons see fontawesome.com/icons
   - {title: Mail, icon: envelope, url: "mailto:gonzalomartindiaz22@gmail.com"}
