@@ -4,7 +4,7 @@ layout: post
 subtitle: Gonzalo M. Díaz
 leafletmap: true
 always_allow_html: yes
-last_modified_at: 2024-07-06
+last_modified_at: 2024-07-08
 output: 
   md_document:
     variant: gfm
