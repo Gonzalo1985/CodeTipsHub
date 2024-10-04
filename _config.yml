@@ -16,7 +16,7 @@ minimal: false             # use a dark header
 # Menu
 
 navigation:                # accepts {file, title, url, icon, sidebaricon}
-  - {title: "R tips", file: "Page01_R.md"}
+  - {title: "R tips", url: "/Page01_R.md"}
   - {title: "QGIS tips", file: "Page02_QGIS.md"}
   - {title: "CV", url: "/CV_DIAZ_Gonzalo.pdf"}
 
