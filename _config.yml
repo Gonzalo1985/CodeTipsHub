@@ -19,6 +19,7 @@ navigation:                # accepts {file, title, url, icon, sidebaricon}
   - {title: "R tips", url: "/Page01_R.md"}
   - {title: "QGIS tips", file: "Page02_QGIS.md"}
   - {title: "CV", url: "/CV_DIAZ_Gonzalo.pdf"}
+  - {title: "About", file: "/About.md"}
 
 external:                  # shows a footer with social links - for available icons see fontawesome.com/icons
   - {title: Mail, icon: envelope, url: "mailto:gonzalomartindiaz22@gmail.com"}
