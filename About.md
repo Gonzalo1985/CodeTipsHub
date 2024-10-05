@@ -1,4 +1,7 @@
-## About
+---
+layout: page
+title: "About site"
+---
 
 This is a space with posts about different needs that arise in my workspace or third-party projects.
 
