@@ -1,5 +1,6 @@
 ---
 title: Evaporation soil model calibration
+layout: post
 subtitle: Gonzalo M. Díaz
 leafletmap: true
 always_allow_html: yes
