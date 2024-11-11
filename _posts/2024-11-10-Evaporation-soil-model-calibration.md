@@ -13,7 +13,6 @@ output:
 
 Post for calibration of soil model evaporation output
 
-
 ## Data preparation
 
 First, the aws.wrfsmn library should be open:
@@ -58,3 +57,23 @@ predictors.variables <- c('OUT_PREC', 'OUT_EVAP', 'OUT_RUNOFF', 'OUT_BASEFLOW',
 
 There is no limit on which variables to take, they could be more or less
 depending on what the user wants.
+
+## Definition of parameters of the Multiple Linear Regression
+
+The data now will be trained with the 2015-01-01 to 2016-12-31 period
+using ‘multiple.guidance’ function with the *predictors.variables*
+vector:
+
+``` r
+data <- eva
+data.training <- data[1:which(data$Dates == "2016-12-31"),]
+
+ml.model <- multiple.guidance(input.data = data.training, predictand = 'evapo_obs', predictors = predictors.variables)
+ml.model$coefficients
+```
+
+    ##          (Intercept)             OUT_PREC             OUT_EVAP           OUT_RUNOFF         OUT_BASEFLOW OUT_SOIL_MOIST_lyr_1        OUT_SURF_TEMP 
+    ##           2.94132868          -0.02036946           0.37819395           0.47251876        -321.88820817          -0.14847134           0.28967937
+
+Now, the parameters can be used to evaluate the model in any dataset.
+Here it is applied to the same training period:
