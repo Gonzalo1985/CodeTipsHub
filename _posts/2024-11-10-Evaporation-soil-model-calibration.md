@@ -13,13 +13,12 @@ output:
 
 Post for calibration of soil model evaporation output
 
-
-## Evaporation soil model calibration
+## Data preparation
 
 First, the aws.wrfsmn library should be open:
 
 ``` r
-library(aws.wrfsmn)
+library("aws.wrfsmn")
 ```
 
 The example data to use will be ‘eva’ and can be visualize:
@@ -42,3 +41,12 @@ head(eva)
     ## 4              24.5836         0.0000       27.9340
     ## 5              24.0370         0.3505       29.7361
     ## 6              23.4706         0.0000       31.6070
+
+The data has several columns with different hydrometeorological
+variables, for example: precipitation, evaporation, runoff, soil
+moisture, etc. All these variables are obtained from the VIC (Variable
+Infiltration Capacity,
+<https://vic.readthedocs.io/en/master/Overview/ModelOverview/>) soil
+model, except for the ‘evapo_obs’ column, which represents the observed
+data of evaporation for the same location. The data goes from 2015-01-01
+to 2017-12-31.
