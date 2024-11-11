@@ -28,6 +28,7 @@ library("aws.wrfsmn")
 The example data to use will be ‘eva’ and can be visualize:
 
 ```{r}
+options(width = 200)
 head(eva)
 ```
 
