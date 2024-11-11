@@ -1,7 +1,6 @@
 ---
 title: Evaporation soil model calibration
 subtitle: Gonzalo M. Díaz
-tags: [R,leaflet,Jekyll, html, maps]
 leafletmap: true
 always_allow_html: yes
 last_modified_at: 2024-11-10
@@ -12,6 +11,7 @@ output:
 ---
 
 Post for calibration of soil model evaporation output
+
 
 ## Data preparation
 
