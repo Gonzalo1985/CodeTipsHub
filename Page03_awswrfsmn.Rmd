@@ -1,0 +1,31 @@
+---
+title: Evaporation soil model calibration
+subtitle: Gonzalo M. Díaz
+tags: [R,leaflet,Jekyll, html, maps]
+leafletmap: true
+always_allow_html: yes
+last_modified_at: 2024-11-10
+output: 
+  md_document:
+    variant: gfm
+    preserve_yaml: true
+---
+
+Post for calibration of soil model evaporation output
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Evaporation soil model calibration
+
+First, the aws.wrfsmn library should be open:
+```{r}
+library(aws.wrfsmn)
+```
+
+The example data to use will be ‘eva’ and can be visualize:
+```{r}
+head(eva)
+```
