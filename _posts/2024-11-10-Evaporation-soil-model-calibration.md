@@ -44,3 +44,16 @@ Infiltration Capacity,
 model, except for the ‘evapo_obs’ column, which represents the observed
 data of evaporation for the same location. The data goes from 2015-01-01
 to 2017-12-31.
+
+## Definition of predictors variables
+
+The variables chosen for adjustment can be any of those modeled. Here
+they will be:
+
+``` r
+predictors.variables <- c('OUT_PREC', 'OUT_EVAP', 'OUT_RUNOFF', 'OUT_BASEFLOW',
+                          'OUT_SOIL_MOIST_lyr_1', 'OUT_SURF_TEMP')
+```
+
+There is no limit on which variables to take, they could be more or less
+depending on what the user wants.
