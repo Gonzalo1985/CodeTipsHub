@@ -69,7 +69,9 @@ vector:
 data <- eva
 data.training <- data[1:which(data$Dates == "2016-12-31"),]
 
-ml.model <- multiple.guidance(input.data = data.training, predictand = 'evapo_obs', predictors = predictors.variables)
+ml.model <- multiple.guidance(input.data = data.training,
+                              predictand = 'evapo_obs',
+                              predictors = predictors.variables)
 ml.model$coefficients
 ```
 
@@ -78,3 +80,61 @@ ml.model$coefficients
 
 Now, the parameters can be used to evaluate the model in any dataset.
 Here it is applied to the same training period:
+
+``` r
+train.eval <- mg.evaluation(input.data = data.training, predictand = 'evapo_obs',
+                            predictors = predictors.variables,
+                            var.model = 'OUT_EVAP',
+                            lmodel = ml.model)
+```
+
+The second element of the list has the statistics parameters of the
+calibration:
+
+``` r
+train.eval[[2]]
+```
+
+    ##              rmse       nash      corr        KGE
+    ## Model    5.003285 -1.0813490 0.2896406 0.01227294
+    ## Guidance 2.839184  0.3297737 0.5742593 0.39791170
+
+And the plot can be visualize with ‘ploting’ function, but first the
+monthly data is calculated (for better visualization) with
+‘daily2monthly’ function:
+
+``` r
+ploting(daily2monthly(data = train.eval[[1]]))
+```
+
+![](Page03_awswrfsmn_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+## Calibration of evaporation soil model output for a verification dataset
+
+The parameters of the previous section now are applied to the
+data.verification period. This period will be defined from 2017-01-01 to
+2017-12-31. Then, the statistics parameters of the calibration in this
+dataset are shown:
+
+``` r
+data.verification <- data[which(data$Dates == "2017-01-01"):which(data$Dates == "2017-12-31"),]
+
+verif.eval <- mg.evaluation(input.data = data.verification, predictand = 'evapo_obs',
+                            predictors = predictors.variables,
+                            var.model = 'OUT_EVAP',
+                            lmodel = ml.model)
+
+verif.eval[[2]]
+```
+
+    ##              rmse       nash       corr        KGE
+    ## Model    6.118006 -1.2593959 0.08312116 -0.1740334
+    ## Guidance 3.703190  0.1722015 0.51803857  0.2039644
+
+Finally, the monthly plot of this dataset is displayed below:
+
+``` r
+ploting(daily2monthly(data = verif.eval[[1]]))
+```
+
+![](Page03_awswrfsmn_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
