@@ -107,7 +107,7 @@ monthly data is calculated (for better visualization) with
 ploting(daily2monthly(data = train.eval[[1]]))
 ```
 
-![](Page03_awswrfsmn_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](../Page03_awswrfsmn_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ## Calibration of evaporation soil model output for a verification dataset
 
@@ -137,4 +137,4 @@ Finally, the monthly plot of this dataset is displayed below:
 ploting(daily2monthly(data = verif.eval[[1]]))
 ```
 
-![](Page03_awswrfsmn_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](../Page03_awswrfsmn_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
