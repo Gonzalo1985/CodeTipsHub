@@ -1,5 +1,5 @@
 ---
-title: Relative humidity calibration
+title: Relative humidity calibration for the WRF model
 layout: post
 subtitle: Gonzalo M. Díaz
 leafletmap: true
@@ -20,24 +20,8 @@ First, the aws.wrfsmn and others libraries should be open:
 ``` r
 library("aws.wrfsmn")
 library("dplyr")
-```
-
-    ## 
-    ## Attaching package: 'dplyr'
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     filter, lag
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     intersect, setdiff, setequal, union
-
-``` r
 library("terra")
 ```
-
-    ## terra 1.7.78
 
 Then, some WRF filenames are defined from WRF SMN AWS service
 

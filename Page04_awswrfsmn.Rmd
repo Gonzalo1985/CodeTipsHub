@@ -1,5 +1,5 @@
 ---
-title: Relative humidity calibration
+title: Relative humidity calibration for the WRF model
 layout: post
 subtitle: Gonzalo M. Díaz
 leafletmap: true
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Data download
 
 First, the aws.wrfsmn and others libraries should be open:
-```{r}
+```{r, message = FALSE}
 library("aws.wrfsmn")
 library("dplyr")
 library("terra")
