@@ -22,6 +22,7 @@ First, the aws.wrfsmn and others libraries should be open:
 library("aws.wrfsmn")
 library("dplyr")
 library("terra")
+library("tibble")
 ```
 
 Then, some WRF filenames are defined from WRF SMN AWS service
@@ -68,7 +69,7 @@ The variables for the adjustment can be any of those found in the WRF
 dataset. Here would be:
 
 ``` r
-variables <- rast("WRFDETAR_01H_20230101_12_000.nc") %>% names()
+variables <- rast("./_includes/WRFDETAR_01H_20230101_12_000.nc") %>% names()
 print(variables)
 ```
 
@@ -77,9 +78,96 @@ print(variables)
     ## [11] "magViento10"
 
 The definition of each variable can be obtained from:
-<https://odp-aws-smn.github.io/documentation_wrf_det/Formato_de_datos/>
+<https://odp-aws-smn.github.io/documentation_wrf_det/Formato_de_datos/>.
+In this case the T2, HR2, SMOIS and magViento10 will be the variables to
+use for the calibration of the Relative Humidity (but other combinations
+of variables could be a better fit).
 
-<!-- There is no limit on which variables to take, they could be more or less depending on what the user wants. -->
+The nc files are open with the terra package and separated in each
+variable:
+
+``` r
+files <- list.files(path = "./_includes/", pattern = "nc", full.names = TRUE)
+nc.files <- rast(files)
+
+T2 <- nc.files[[which(names(nc.files) == "T2")]]
+HR2 <- nc.files[[which(names(nc.files) == "HR2")]]
+SMOIS <- nc.files[[which(names(nc.files) == "SMOIS")]]
+magViento10 <- nc.files[[which(names(nc.files) == "magViento10")]]
+```
+
+Before extraction of data by location point, the transformation of
+coordinate reference should be done:
+
+``` r
+T2 <- project(T2, "+proj=longlat +datum=WGS84", method = "bilinear")
+```
+
+    ## |---------|---------|---------|---------|=========================================                                          
+
+``` r
+HR2 <- project(HR2, "+proj=longlat +datum=WGS84", method = "bilinear")
+```
+
+    ## |---------|---------|---------|---------|=========================================                                          
+
+``` r
+SMOIS <- project(SMOIS, "+proj=longlat +datum=WGS84", method = "bilinear")
+```
+
+    ## |---------|---------|---------|---------|=========================================                                          
+
+``` r
+magViento10 <- project(magViento10, "+proj=longlat +datum=WGS84", method = "bilinear")
+```
+
+    ## |---------|---------|---------|---------|=========================================                                          
+
+The location in which will try to calibrate the WRF model will be
+Sunchales City, in the center of Argentina, the location of this city
+is:
+
+``` r
+LON <- -61.53258
+LAT <- -30.95686
+```
+
+Now, the temporal series of each variable are taken in that location:
+
+``` r
+T2.ts <- extract(T2, vect(cbind(LON, LAT)), ID = FALSE)
+HR2.ts <- extract(HR2, vect(cbind(LON, LAT)), ID = FALSE)
+SMOIS.ts <- extract(SMOIS, vect(cbind(LON, LAT)), ID = FALSE)
+magViento.ts <- extract(magViento10, vect(cbind(LON, LAT)), ID = FALSE)
+```
+
+Now the data is arranged in a table with the Date information as first
+column:
+
+``` r
+data.table <- tibble(Date = time(T2),
+                     T2.wrf = t(T2.ts),
+                     HR2.wrf = t(HR2.ts),
+                     SMOIS.wrf = t(SMOIS.ts),
+                     magViento.wrf = t(magViento.ts))
+data.table
+```
+
+    ## # A tibble: 146 × 5
+    ##    Date                T2.wrf[,1] HR2.wrf[,1] SMOIS.wrf[,1] magViento.wrf[,1]
+    ##    <dttm>                   <dbl>       <dbl>         <dbl>             <dbl>
+    ##  1 2023-01-01 12:00:00       24.5        58.2         0.139              1.96
+    ##  2 2023-01-01 13:00:00       28.9        35.5         0.139              2.86
+    ##  3 2023-01-01 14:00:00       30.8        29.1         0.139              2.81
+    ##  4 2023-01-01 15:00:00       31.7        25.8         0.139              1.58
+    ##  5 2023-01-01 16:00:00       31.3        30.2         0.139              8.18
+    ##  6 2023-01-01 17:00:00       29.4        34.5         0.139              7.26
+    ##  7 2023-01-01 18:00:00       26.5        46.7         0.139              9.41
+    ##  8 2023-01-01 19:00:00       28.0        41.3         0.139              7.19
+    ##  9 2023-01-01 20:00:00       25.3        58.9         0.142              4.29
+    ## 10 2023-01-01 21:00:00       26.9        45.9         0.142              2.83
+    ## # ℹ 136 more rows
+
 <!-- ## Definition of parameters of the Multiple Linear Regression -->
 <!-- The data now will be trained with the 2015-01-01 to 2016-12-31 period using 'multiple.guidance' function with the *predictors.variables* vector: -->
 <!-- ```{r} -->
