@@ -24,6 +24,7 @@ First, the aws.wrfsmn and others libraries should be open:
 library("aws.wrfsmn")
 library("dplyr")
 library("terra")
+library("tibble")
 ```
 
 Then, some WRF filenames are defined from WRF SMN AWS service
@@ -49,13 +50,54 @@ After this line, the dataset defined in 'filenames' will be downloaded.
 
 The variables for the adjustment can be any of those found in the WRF dataset. Here would be:
 ```{r}
-variables <- rast("WRFDETAR_01H_20230101_12_000.nc") %>% names()
+variables <- rast("./_includes/WRFDETAR_01H_20230101_12_000.nc") %>% names()
 print(variables)
 ```
 
-The definition of each variable can be obtained from: <https://odp-aws-smn.github.io/documentation_wrf_det/Formato_de_datos/>
+The definition of each variable can be obtained from: <https://odp-aws-smn.github.io/documentation_wrf_det/Formato_de_datos/>. In this case the T2, HR2, SMOIS and magViento10 will be the variables to use for the calibration of the Relative Humidity (but other combinations of variables could be a better fit).
 
-<!-- There is no limit on which variables to take, they could be more or less depending on what the user wants. -->
+The nc files are open with the terra package and separated in each variable:
+```{r}
+files <- list.files(path = "./_includes/", pattern = "nc", full.names = TRUE)
+nc.files <- rast(files)
+
+T2 <- nc.files[[which(names(nc.files) == "T2")]]
+HR2 <- nc.files[[which(names(nc.files) == "HR2")]]
+SMOIS <- nc.files[[which(names(nc.files) == "SMOIS")]]
+magViento10 <- nc.files[[which(names(nc.files) == "magViento10")]]
+```
+
+Before extraction of data by location point, the transformation of coordinate reference should be done:
+```{r}
+T2 <- project(T2, "+proj=longlat +datum=WGS84", method = "bilinear")
+HR2 <- project(HR2, "+proj=longlat +datum=WGS84", method = "bilinear")
+SMOIS <- project(SMOIS, "+proj=longlat +datum=WGS84", method = "bilinear")
+magViento10 <- project(magViento10, "+proj=longlat +datum=WGS84", method = "bilinear")
+```
+
+The location in which will try to calibrate the WRF model will be Sunchales City, in the center of Argentina, the location of this city is:
+```{r}
+LON <- -61.53258
+LAT <- -30.95686
+```
+
+Now, the temporal series of each variable are taken in that location:
+```{r}
+T2.ts <- extract(T2, vect(cbind(LON, LAT)), ID = FALSE)
+HR2.ts <- extract(HR2, vect(cbind(LON, LAT)), ID = FALSE)
+SMOIS.ts <- extract(SMOIS, vect(cbind(LON, LAT)), ID = FALSE)
+magViento.ts <- extract(magViento10, vect(cbind(LON, LAT)), ID = FALSE)
+```
+
+Now the data is arranged in a table with the Date information as first column:
+```{r}
+data.table <- tibble(Date = time(T2),
+                     T2.wrf = t(T2.ts),
+                     HR2.wrf = t(HR2.ts),
+                     SMOIS.wrf = t(SMOIS.ts),
+                     magViento.wrf = t(magViento.ts))
+data.table
+```
 
 <!-- ## Definition of parameters of the Multiple Linear Regression -->
 
