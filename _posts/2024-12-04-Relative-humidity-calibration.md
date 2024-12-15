@@ -29,26 +29,26 @@ Then, some WRF filenames are defined from WRF SMN AWS service
 
 ``` r
 filenames <- c()
-for (i in 1:2)
-  {aux.filenames <- get.wrf.files(year = 2023, month = 1, day = i, cycle = 12, time = "01H")
+for (i in c(1, 4))
+  {aux.filenames <- get.wrf.files(year = 2023, month = 1, day = i, cycle = 00, time = "01H")
    filenames <- c(filenames, aux.filenames)
   }
 print(filenames[1:13])
 ```
 
-    ##  [1] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_000.nc"
-    ##  [2] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_001.nc"
-    ##  [3] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_002.nc"
-    ##  [4] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_003.nc"
-    ##  [5] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_004.nc"
-    ##  [6] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_005.nc"
-    ##  [7] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_006.nc"
-    ##  [8] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_007.nc"
-    ##  [9] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_008.nc"
-    ## [10] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_009.nc"
-    ## [11] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_010.nc"
-    ## [12] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_011.nc"
-    ## [13] "DATA/WRF/DET/2023/01/01/12/WRFDETAR_01H_20230101_12_012.nc"
+    ##  [1] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_000.nc"
+    ##  [2] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_001.nc"
+    ##  [3] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_002.nc"
+    ##  [4] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_003.nc"
+    ##  [5] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_004.nc"
+    ##  [6] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_005.nc"
+    ##  [7] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_006.nc"
+    ##  [8] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_007.nc"
+    ##  [9] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_008.nc"
+    ## [10] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_009.nc"
+    ## [11] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_010.nc"
+    ## [12] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_011.nc"
+    ## [13] "DATA/WRF/DET/2023/01/01/00/WRFDETAR_01H_20230101_00_012.nc"
 
 The data of WRF model is downloaded from AWS
 (<https://registry.opendata.aws/smn-ar-wrf-dataset/>). The documentation
@@ -69,7 +69,7 @@ The variables for the adjustment can be any of those found in the WRF
 dataset. Here would be:
 
 ``` r
-variables <- rast("./_includes/WRFDETAR_01H_20230101_12_000.nc") %>% names()
+variables <- rast("./_includes/WRFDETAR_01H_20230101_00_000.nc") %>% names()
 print(variables)
 ```
 
@@ -96,32 +96,15 @@ SMOIS <- nc.files[[which(names(nc.files) == "SMOIS")]]
 magViento10 <- nc.files[[which(names(nc.files) == "magViento10")]]
 ```
 
-Before extraction of data by location point, the transformation of
-coordinate reference should be done:
+Before extraction of data by location point, the transformation of the
+reference coordinate system should be done:
 
 ``` r
 T2 <- project(T2, "+proj=longlat +datum=WGS84", method = "bilinear")
-```
-
-    ## |---------|---------|---------|---------|=========================================                                          
-
-``` r
 HR2 <- project(HR2, "+proj=longlat +datum=WGS84", method = "bilinear")
-```
-
-    ## |---------|---------|---------|---------|=========================================                                          
-
-``` r
 SMOIS <- project(SMOIS, "+proj=longlat +datum=WGS84", method = "bilinear")
-```
-
-    ## |---------|---------|---------|---------|=========================================                                          
-
-``` r
 magViento10 <- project(magViento10, "+proj=longlat +datum=WGS84", method = "bilinear")
 ```
-
-    ## |---------|---------|---------|---------|=========================================                                          
 
 The location in which will try to calibrate the WRF model will be
 Sunchales City, in the center of Argentina, the location of this city
@@ -156,19 +139,46 @@ data.table
     ## # A tibble: 146 × 5
     ##    Date                T2.wrf[,1] HR2.wrf[,1] SMOIS.wrf[,1] magViento.wrf[,1]
     ##    <dttm>                   <dbl>       <dbl>         <dbl>             <dbl>
-    ##  1 2023-01-01 12:00:00       24.5        58.2         0.139              1.96
-    ##  2 2023-01-01 13:00:00       28.9        35.5         0.139              2.86
-    ##  3 2023-01-01 14:00:00       30.8        29.1         0.139              2.81
-    ##  4 2023-01-01 15:00:00       31.7        25.8         0.139              1.58
-    ##  5 2023-01-01 16:00:00       31.3        30.2         0.139              8.18
-    ##  6 2023-01-01 17:00:00       29.4        34.5         0.139              7.26
-    ##  7 2023-01-01 18:00:00       26.5        46.7         0.139              9.41
-    ##  8 2023-01-01 19:00:00       28.0        41.3         0.139              7.19
-    ##  9 2023-01-01 20:00:00       25.3        58.9         0.142              4.29
-    ## 10 2023-01-01 21:00:00       26.9        45.9         0.142              2.83
+    ##  1 2023-01-01 00:00:00       31.2        28.1         0.131              1.93
+    ##  2 2023-01-01 01:00:00       30.0        33.1         0.131              1.98
+    ##  3 2023-01-01 02:00:00       27.9        35.0         0.131              3.09
+    ##  4 2023-01-01 03:00:00       26.8        35.5         0.131              3.17
+    ##  5 2023-01-01 04:00:00       25.7        37.9         0.131              3.23
+    ##  6 2023-01-01 05:00:00       24.7        39.5         0.131              3.75
+    ##  7 2023-01-01 06:00:00       23.1        42.1         0.131              3.32
+    ##  8 2023-01-01 07:00:00       24.7        36.4         0.131              3.34
+    ##  9 2023-01-01 08:00:00       24.8        36.2         0.131              2.69
+    ## 10 2023-01-01 09:00:00       25.3        32.3         0.131              4.66
     ## # ℹ 136 more rows
 
+## Predicting variable: observational data
+
+The variable to predict, will be the relative humidity observed in
+Sunchales City. Here is a sample of the data:
+
+``` r
+data.obs <- read.table("./data/sunchales.txt", header = TRUE) %>% as_tibble()
+data.obs
+```
+
+    ## # A tibble: 96 × 4
+    ##       id fecha       hora humrel
+    ##    <int> <chr>      <int>  <int>
+    ##  1 18250 2023-01-01     0     35
+    ##  2 18250 2023-01-01     1     59
+    ##  3 18250 2023-01-01     2     86
+    ##  4 18250 2023-01-01     3     87
+    ##  5 18250 2023-01-01     4     88
+    ##  6 18250 2023-01-01     5     95
+    ##  7 18250 2023-01-01     6     96
+    ##  8 18250 2023-01-01     7     93
+    ##  9 18250 2023-01-01     8     84
+    ## 10 18250 2023-01-01     9     78
+    ## # ℹ 86 more rows
+
+The relative humidity observed can be found in the last column.
 <!-- ## Definition of parameters of the Multiple Linear Regression -->
+
 <!-- The data now will be trained with the 2015-01-01 to 2016-12-31 period using 'multiple.guidance' function with the *predictors.variables* vector: -->
 <!-- ```{r} -->
 <!-- data <- eva -->

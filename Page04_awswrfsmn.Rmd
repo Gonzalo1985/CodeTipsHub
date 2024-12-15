@@ -30,8 +30,8 @@ library("tibble")
 Then, some WRF filenames are defined from WRF SMN AWS service
 ```{r}
 filenames <- c()
-for (i in 1:2)
-  {aux.filenames <- get.wrf.files(year = 2023, month = 1, day = i, cycle = 12, time = "01H")
+for (i in c(1, 4))
+  {aux.filenames <- get.wrf.files(year = 2023, month = 1, day = i, cycle = 00, time = "01H")
    filenames <- c(filenames, aux.filenames)
   }
 print(filenames[1:13])
@@ -50,7 +50,7 @@ After this line, the dataset defined in 'filenames' will be downloaded.
 
 The variables for the adjustment can be any of those found in the WRF dataset. Here would be:
 ```{r}
-variables <- rast("./_includes/WRFDETAR_01H_20230101_12_000.nc") %>% names()
+variables <- rast("./_includes/WRFDETAR_01H_20230101_00_000.nc") %>% names()
 print(variables)
 ```
 
@@ -67,8 +67,8 @@ SMOIS <- nc.files[[which(names(nc.files) == "SMOIS")]]
 magViento10 <- nc.files[[which(names(nc.files) == "magViento10")]]
 ```
 
-Before extraction of data by location point, the transformation of coordinate reference should be done:
-```{r}
+Before extraction of data by location point, the transformation of the reference coordinate system should be done:
+```{r, results = "hide"}
 T2 <- project(T2, "+proj=longlat +datum=WGS84", method = "bilinear")
 HR2 <- project(HR2, "+proj=longlat +datum=WGS84", method = "bilinear")
 SMOIS <- project(SMOIS, "+proj=longlat +datum=WGS84", method = "bilinear")
@@ -99,6 +99,15 @@ data.table <- tibble(Date = time(T2),
 data.table
 ```
 
+## Predicting variable: observational data
+
+The variable to predict, will be the relative humidity observed in Sunchales City. Here is a sample of the data:
+```{r}
+data.obs <- read.table("./data/sunchales.txt", header = TRUE) %>% as_tibble()
+data.obs
+```
+
+The relative humidity observed can be found in the last column. Now the data.obs ...
 <!-- ## Definition of parameters of the Multiple Linear Regression -->
 
 <!-- The data now will be trained with the 2015-01-01 to 2016-12-31 period using 'multiple.guidance' function with the *predictors.variables* vector: -->
