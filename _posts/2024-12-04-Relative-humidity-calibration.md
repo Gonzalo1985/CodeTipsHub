@@ -23,6 +23,7 @@ library("aws.wrfsmn")
 library("dplyr")
 library("terra")
 library("tibble")
+library("ggplot2")
 ```
 
 Then, some WRF filenames are defined from WRF SMN AWS service
@@ -139,16 +140,16 @@ data.table
     ## # A tibble: 146 × 5
     ##    Date                T2.wrf[,1] HR2.wrf[,1] SMOIS.wrf[,1] magViento.wrf[,1]
     ##    <dttm>                   <dbl>       <dbl>         <dbl>             <dbl>
-    ##  1 2023-01-01 00:00:00       31.2        28.1         0.131              1.93
-    ##  2 2023-01-01 01:00:00       30.0        33.1         0.131              1.98
-    ##  3 2023-01-01 02:00:00       27.9        35.0         0.131              3.09
-    ##  4 2023-01-01 03:00:00       26.8        35.5         0.131              3.17
-    ##  5 2023-01-01 04:00:00       25.7        37.9         0.131              3.23
-    ##  6 2023-01-01 05:00:00       24.7        39.5         0.131              3.75
-    ##  7 2023-01-01 06:00:00       23.1        42.1         0.131              3.32
-    ##  8 2023-01-01 07:00:00       24.7        36.4         0.131              3.34
-    ##  9 2023-01-01 08:00:00       24.8        36.2         0.131              2.69
-    ## 10 2023-01-01 09:00:00       25.3        32.3         0.131              4.66
+    ##  1 2023-01-01 00:00:00       31.2        28.1         0.131              1.96
+    ##  2 2023-01-01 01:00:00       30.0        33.1         0.131              1.99
+    ##  3 2023-01-01 02:00:00       27.9        35.0         0.131              3.07
+    ##  4 2023-01-01 03:00:00       26.8        35.4         0.131              3.16
+    ##  5 2023-01-01 04:00:00       25.7        37.9         0.131              3.21
+    ##  6 2023-01-01 05:00:00       24.7        39.5         0.131              3.74
+    ##  7 2023-01-01 06:00:00       23.1        42.1         0.131              3.31
+    ##  8 2023-01-01 07:00:00       24.6        36.5         0.131              3.30
+    ##  9 2023-01-01 08:00:00       24.8        36.3         0.131              2.60
+    ## 10 2023-01-01 09:00:00       25.3        32.2         0.131              4.76
     ## # ℹ 136 more rows
 
 ## Predicting variable: observational data
@@ -176,33 +177,69 @@ data.obs
     ## 10 18250 2023-01-01     9     78
     ## # ℹ 86 more rows
 
-The relative humidity observed can be found in the last column.
-<!-- ## Definition of parameters of the Multiple Linear Regression -->
+The relative humidity observed can be found in the last column. Now the
+data.obs is append next to the data.table:
 
-<!-- The data now will be trained with the 2015-01-01 to 2016-12-31 period using 'multiple.guidance' function with the *predictors.variables* vector: -->
-<!-- ```{r} -->
-<!-- data <- eva -->
-<!-- data.training <- data[1:which(data$Dates == "2016-12-31"),] -->
-<!-- ml.model <- multiple.guidance(input.data = data.training, -->
-<!--                               predictand = 'evapo_obs', -->
-<!--                               predictors = predictors.variables) -->
-<!-- ml.model$coefficients -->
-<!-- ``` -->
-<!-- Now, the parameters can be used to evaluate the model in any dataset. Here it is applied to the same training period: -->
-<!-- ```{r} -->
-<!-- train.eval <- mg.evaluation(input.data = data.training, predictand = 'evapo_obs', -->
-<!--                             predictors = predictors.variables, -->
-<!--                             var.model = 'OUT_EVAP', -->
-<!--                             lmodel = ml.model) -->
-<!-- ``` -->
-<!-- The second element of the list has the statistics parameters of the calibration: -->
-<!-- ```{r} -->
-<!-- train.eval[[2]] -->
-<!-- ``` -->
-<!-- And the plot can be visualize with 'ploting' function, but first the monthly data is calculated (for better visualization) with 'daily2monthly' function: -->
-<!-- ```{r} -->
-<!-- ploting(daily2monthly(data = train.eval[[1]])) -->
-<!-- ``` -->
+``` r
+data.table <- cbind(data.table, c(data.obs$humrel[1:96], data.obs$humrel[1:50]))
+colnames(data.table) <- c("Dates", "T2.wrf", "HR2.wrf", "SMOIS.wrf", "magViento.wrf", "HR2.obs")
+```
+
+## Training and verification of the relative humidity calibration
+
+The data now will be trained with the 2023-01-01 00:00:00 to 2023-01-03
+23:00:00 period using ‘multiple.guidance’ function with the predictors
+variables defined with T2.wrf, HR2.wrf, SMOIS.wrf and magViento.wrf:
+
+``` r
+data.training <- data.table[1:which(data.table$Date == "2023-01-03 23:00:00"),]
+
+ml.model <- multiple.guidance(input.data = data.training,
+                              predictand = 'HR2.obs',
+                              predictors = c('T2.wrf', 'HR2.wrf', 'SMOIS.wrf', 'magViento.wrf'))
+ml.model$coefficients
+```
+
+    ##   (Intercept)        T2.wrf       HR2.wrf     SMOIS.wrf magViento.wrf 
+    ##    334.795881     -1.239779      0.546299  -1784.360575     -2.355755
+
+Now, the parameters can be used to evaluate the model in any dataset.
+Here it is applied to the same training period:
+
+``` r
+train.eval <- mg.evaluation(input.data = data.training,
+                            predictand = 'HR2.obs',
+                            predictors = c('T2.wrf', 'HR2.wrf', 'SMOIS.wrf', 'magViento.wrf'),
+                            var.model = 'HR2.wrf',
+                            lmodel = ml.model)
+```
+
+The plot can not be visualize with ‘ploting’ function, because this
+function only works with daily data, in this case the data is hourly.
+So, the ggplot function will be use to visualize the results:
+
+``` r
+figure <- ggplot(data = train.eval[[1]]) +
+  geom_line(aes(Dates, observation, colour = "red"), group = 1) +
+  geom_line(aes(Dates, model, colour = "blue"), group = 1) +
+  geom_line(aes(Dates, guidance), group = 1)
+
+print(figure)
+```
+
+![](Page04_awswrfsmn_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+The second element of the list has the statistics parameters of the
+calibration: –\>
+
+``` r
+train.eval[[2]]
+```
+
+    ##              rmse       nash      corr       KGE
+    ## Model    30.71986 -0.5713277 0.6174308 0.2846954
+    ## Guidance 14.34912  0.6571698 0.8106601 0.7322329
+
 <!-- ## Calibration of evaporation soil model output for a verification dataset -->
 <!-- The parameters of the previous section now are applied to the data.verification period. This period will be defined from 2017-01-01 to 2017-12-31. Then, the statistics parameters of the calibration in this dataset are shown: -->
 <!-- ```{r} -->
