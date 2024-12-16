@@ -227,7 +227,7 @@ figure <- ggplot(data = train.eval[[1]]) +
 print(figure)
 ```
 
-![](Page04_awswrfsmn_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](../Page04_awswrfsmn_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 The second element of the list has the statistics parameters of the
 calibration: –\>
