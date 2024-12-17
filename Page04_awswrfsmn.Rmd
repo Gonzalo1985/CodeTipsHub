@@ -137,20 +137,29 @@ train.eval <- mg.evaluation(input.data = data.training,
 ```
 
 The plot can not be visualize with 'ploting' function, because this function only works with daily data, in this case the data is hourly. So, the ggplot function will be use to visualize the results:
-```{r}
-figure <- ggplot(data = train.eval[[1]]) +
-  geom_line(aes(Dates, observation, colour = "red"), group = 1) +
-  geom_line(aes(Dates, model, colour = "blue"), group = 1) +
-  geom_line(aes(Dates, guidance), group = 1)
+```{r, warning = FALSE}
+data.to.plot <- as_tibble(train.eval[[1]])
+data.to.plot$Dates <- as.POSIXct(data.to.plot$Dates, format = "%Y-%m-%d %H:%M:%S")
+data.to.plot$observation <- as.numeric(data.to.plot$observation)
+data.to.plot$model <- as.numeric(data.to.plot$model)
+data.to.plot$guidance <- as.numeric(data.to.plot$guidance)
+
+figure <- ggplot(data = data.to.plot) +
+  geom_point(aes(Dates, observation), col = "black") +
+  geom_line(aes(Dates, model), col = "blue") +
+  geom_line(aes(Dates, guidance), col = "red") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(y = "HR2 (%)")
 
 print(figure)
 ```
 
-The second element of the list has the statistics parameters of the calibration: -->
+The second element of the list has the statistics parameters of the calibration:
 ```{r}
 train.eval[[2]]
 ```
 
+POST WILL CONTINUE....
 
 <!-- ## Calibration of evaporation soil model output for a verification dataset -->
 

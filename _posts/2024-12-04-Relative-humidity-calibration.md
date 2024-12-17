@@ -201,7 +201,7 @@ ml.model$coefficients
 ```
 
     ##   (Intercept)        T2.wrf       HR2.wrf     SMOIS.wrf magViento.wrf 
-    ##    334.795881     -1.239779      0.546299  -1784.360575     -2.355755
+    ##   335.6209853    -1.2396806     0.5468009 -1790.6835541    -2.3568181
 
 Now, the parameters can be used to evaluate the model in any dataset.
 Here it is applied to the same training period:
@@ -219,10 +219,18 @@ function only works with daily data, in this case the data is hourly.
 So, the ggplot function will be use to visualize the results:
 
 ``` r
-figure <- ggplot(data = train.eval[[1]]) +
-  geom_line(aes(Dates, observation, colour = "red"), group = 1) +
-  geom_line(aes(Dates, model, colour = "blue"), group = 1) +
-  geom_line(aes(Dates, guidance), group = 1)
+data.to.plot <- as_tibble(train.eval[[1]])
+data.to.plot$Dates <- as.POSIXct(data.to.plot$Dates, format = "%Y-%m-%d %H:%M:%S")
+data.to.plot$observation <- as.numeric(data.to.plot$observation)
+data.to.plot$model <- as.numeric(data.to.plot$model)
+data.to.plot$guidance <- as.numeric(data.to.plot$guidance)
+
+figure <- ggplot(data = data.to.plot) +
+  geom_point(aes(Dates, observation), col = "black") +
+  geom_line(aes(Dates, model), col = "blue") +
+  geom_line(aes(Dates, guidance), col = "red") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(y = "HR2 (%)")
 
 print(figure)
 ```
@@ -230,15 +238,17 @@ print(figure)
 ![](../Page04_awswrfsmn_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 The second element of the list has the statistics parameters of the
-calibration: –\>
+calibration:
 
 ``` r
 train.eval[[2]]
 ```
 
     ##              rmse       nash      corr       KGE
-    ## Model    30.71986 -0.5713277 0.6174308 0.2846954
-    ## Guidance 14.34912  0.6571698 0.8106601 0.7322329
+    ## Model    30.71934 -0.5712752 0.6173922 0.2847963
+    ## Guidance 14.34570  0.6573333 0.8107610 0.7323756
+
+POST WILL CONTINUE….
 
 <!-- ## Calibration of evaporation soil model output for a verification dataset -->
 <!-- The parameters of the previous section now are applied to the data.verification period. This period will be defined from 2017-01-01 to 2017-12-31. Then, the statistics parameters of the calibration in this dataset are shown: -->
