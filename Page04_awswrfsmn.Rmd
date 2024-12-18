@@ -104,7 +104,7 @@ data.table
 
 The variable to predict, will be the relative humidity observed in Sunchales City. Here is a sample of the data:
 ```{r}
-data.obs <- read.table("./data/sunchales.txt", header = TRUE) %>% as_tibble()
+data.obs <- read.csv("./data/sunchales.csv", header = TRUE) %>% as_tibble()
 data.obs
 ```
 
