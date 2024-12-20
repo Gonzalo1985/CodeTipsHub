@@ -140,16 +140,16 @@ data.table
     ## # A tibble: 146 × 5
     ##    Date                T2.wrf[,1] HR2.wrf[,1] SMOIS.wrf[,1] magViento.wrf[,1]
     ##    <dttm>                   <dbl>       <dbl>         <dbl>             <dbl>
-    ##  1 2023-01-01 00:00:00       31.2        28.1         0.131              1.96
+    ##  1 2023-01-01 00:00:00       31.2        28.1         0.131              1.95
     ##  2 2023-01-01 01:00:00       30.0        33.1         0.131              1.99
     ##  3 2023-01-01 02:00:00       27.9        35.0         0.131              3.07
     ##  4 2023-01-01 03:00:00       26.8        35.4         0.131              3.16
-    ##  5 2023-01-01 04:00:00       25.7        37.9         0.131              3.21
+    ##  5 2023-01-01 04:00:00       25.7        37.9         0.131              3.22
     ##  6 2023-01-01 05:00:00       24.7        39.5         0.131              3.74
     ##  7 2023-01-01 06:00:00       23.1        42.1         0.131              3.31
-    ##  8 2023-01-01 07:00:00       24.6        36.5         0.131              3.30
-    ##  9 2023-01-01 08:00:00       24.8        36.3         0.131              2.60
-    ## 10 2023-01-01 09:00:00       25.3        32.2         0.131              4.76
+    ##  8 2023-01-01 07:00:00       24.6        36.4         0.131              3.32
+    ##  9 2023-01-01 08:00:00       24.8        36.3         0.131              2.62
+    ## 10 2023-01-01 09:00:00       25.3        32.2         0.131              4.74
     ## # ℹ 136 more rows
 
 ## Predicting variable: observational data
@@ -158,41 +158,41 @@ The variable to predict, will be the relative humidity observed in
 Sunchales City. Here is a sample of the data:
 
 ``` r
-data.obs <- read.table("./data/sunchales.txt", header = TRUE) %>% as_tibble()
+data.obs <- read.csv("./data/sunchales.csv", header = TRUE) %>% as_tibble()
 data.obs
 ```
 
-    ## # A tibble: 96 × 4
-    ##       id fecha       hora humrel
-    ##    <int> <chr>      <int>  <int>
-    ##  1 18250 2023-01-01     0     35
-    ##  2 18250 2023-01-01     1     59
-    ##  3 18250 2023-01-01     2     86
-    ##  4 18250 2023-01-01     3     87
-    ##  5 18250 2023-01-01     4     88
-    ##  6 18250 2023-01-01     5     95
-    ##  7 18250 2023-01-01     6     96
-    ##  8 18250 2023-01-01     7     93
-    ##  9 18250 2023-01-01     8     84
-    ## 10 18250 2023-01-01     9     78
-    ## # ℹ 86 more rows
+    ## # A tibble: 145 × 4
+    ##    ESTACION FECHAUTC    HORA HUMREL
+    ##       <int> <chr>      <int>  <int>
+    ##  1    18250 2023-01-01     0     35
+    ##  2    18250 2023-01-01     1     59
+    ##  3    18250 2023-01-01     2     86
+    ##  4    18250 2023-01-01     3     87
+    ##  5    18250 2023-01-01     4     88
+    ##  6    18250 2023-01-01     5     95
+    ##  7    18250 2023-01-01     6     96
+    ##  8    18250 2023-01-01     7     93
+    ##  9    18250 2023-01-01     8     84
+    ## 10    18250 2023-01-01     9     78
+    ## # ℹ 135 more rows
 
 The relative humidity observed can be found in the last column. Now the
 data.obs is append next to the data.table:
 
 ``` r
-data.table <- cbind(data.table, c(data.obs$humrel[1:96], data.obs$humrel[1:50]))
+data.table <- cbind(data.table, c(data.obs$HUMREL[1:73], data.obs$HUMREL[73:145]))
 colnames(data.table) <- c("Dates", "T2.wrf", "HR2.wrf", "SMOIS.wrf", "magViento.wrf", "HR2.obs")
 ```
 
-## Training and verification of the relative humidity calibration
+## Relative humidity calibration: Training
 
 The data now will be trained with the 2023-01-01 00:00:00 to 2023-01-03
 23:00:00 period using ‘multiple.guidance’ function with the predictors
 variables defined with T2.wrf, HR2.wrf, SMOIS.wrf and magViento.wrf:
 
 ``` r
-data.training <- data.table[1:which(data.table$Date == "2023-01-03 23:00:00"),]
+data.training <- data.table[1:which(data.table$Date == "2023-01-04 00:00:00"),]
 
 ml.model <- multiple.guidance(input.data = data.training,
                               predictand = 'HR2.obs',
@@ -201,7 +201,7 @@ ml.model$coefficients
 ```
 
     ##   (Intercept)        T2.wrf       HR2.wrf     SMOIS.wrf magViento.wrf 
-    ##   335.6209853    -1.2396806     0.5468009 -1790.6835541    -2.3568181
+    ##   323.7753582    -1.1374126     0.5581659 -1737.2480993    -2.1171269
 
 Now, the parameters can be used to evaluate the model in any dataset.
 Here it is applied to the same training period:
@@ -237,16 +237,18 @@ print(figure)
 
 ![](../Page04_awswrfsmn_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
-The second element of the list has the statistics parameters of the
-calibration:
+The second element of the list ‘train.eval’ has the statistics
+parameters of the calibration:
 
 ``` r
 train.eval[[2]]
 ```
 
     ##              rmse       nash      corr       KGE
-    ## Model    30.71934 -0.5712752 0.6173922 0.2847963
-    ## Guidance 14.34570  0.6573333 0.8107610 0.7323756
+    ## Model    30.65969 -0.5857673 0.6150601 0.2843344
+    ## Guidance 14.54833  0.6429492 0.8018411 0.7197610
+
+## Relative humidity calibration: Verification
 
 POST WILL CONTINUE….
 

@@ -110,16 +110,16 @@ data.obs
 
 The relative humidity observed can be found in the last column. Now the data.obs is append next to the data.table:
 ```{r}
-data.table <- cbind(data.table, c(data.obs$humrel[1:96], data.obs$humrel[1:50]))
+data.table <- cbind(data.table, c(data.obs$HUMREL[1:73], data.obs$HUMREL[73:145]))
 colnames(data.table) <- c("Dates", "T2.wrf", "HR2.wrf", "SMOIS.wrf", "magViento.wrf", "HR2.obs")
 ```
 
-## Training and verification of the relative humidity calibration
+## Relative humidity calibration: Training
 
 The data now will be trained with the 2023-01-01 00:00:00 to 2023-01-03 23:00:00 period using 'multiple.guidance' function with the predictors variables defined with T2.wrf, HR2.wrf, SMOIS.wrf and magViento.wrf:
 
 ```{r}
-data.training <- data.table[1:which(data.table$Date == "2023-01-03 23:00:00"),]
+data.training <- data.table[1:which(data.table$Date == "2023-01-04 00:00:00"),]
 
 ml.model <- multiple.guidance(input.data = data.training,
                               predictand = 'HR2.obs',
@@ -154,10 +154,12 @@ figure <- ggplot(data = data.to.plot) +
 print(figure)
 ```
 
-The second element of the list has the statistics parameters of the calibration:
+The second element of the list 'train.eval' has the statistics parameters of the calibration:
 ```{r}
 train.eval[[2]]
 ```
+
+## Relative humidity calibration: Verification
 
 POST WILL CONTINUE....
 
