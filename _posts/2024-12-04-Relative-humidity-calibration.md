@@ -88,7 +88,7 @@ The nc files are open with the terra package and separated in each
 variable:
 
 ``` r
-files <- list.files(path = "./_includes/", pattern = "nc", full.names = TRUE)
+files <- list.files(path = "./_includes", pattern = "nc", full.names = TRUE)
 nc.files <- rast(files)
 
 T2 <- nc.files[[which(names(nc.files) == "T2")]]
@@ -140,16 +140,16 @@ data.table
     ## # A tibble: 146 × 5
     ##    Date                T2.wrf[,1] HR2.wrf[,1] SMOIS.wrf[,1] magViento.wrf[,1]
     ##    <dttm>                   <dbl>       <dbl>         <dbl>             <dbl>
-    ##  1 2023-01-01 00:00:00       31.2        28.1         0.131              1.95
-    ##  2 2023-01-01 01:00:00       30.0        33.1         0.131              1.99
-    ##  3 2023-01-01 02:00:00       27.9        35.0         0.131              3.07
-    ##  4 2023-01-01 03:00:00       26.8        35.4         0.131              3.16
-    ##  5 2023-01-01 04:00:00       25.7        37.9         0.131              3.22
-    ##  6 2023-01-01 05:00:00       24.7        39.5         0.131              3.74
-    ##  7 2023-01-01 06:00:00       23.1        42.1         0.131              3.31
-    ##  8 2023-01-01 07:00:00       24.6        36.4         0.131              3.32
-    ##  9 2023-01-01 08:00:00       24.8        36.3         0.131              2.62
-    ## 10 2023-01-01 09:00:00       25.3        32.2         0.131              4.74
+    ##  1 2023-01-01 00:00:00       31.2        28.0         0.131              1.85
+    ##  2 2023-01-01 01:00:00       30.1        32.7         0.131              1.97
+    ##  3 2023-01-01 02:00:00       27.9        34.7         0.131              3.12
+    ##  4 2023-01-01 03:00:00       26.8        35.5         0.131              3.20
+    ##  5 2023-01-01 04:00:00       25.7        38.0         0.131              3.26
+    ##  6 2023-01-01 05:00:00       24.7        39.5         0.131              3.75
+    ##  7 2023-01-01 06:00:00       23.2        42.1         0.131              3.33
+    ##  8 2023-01-01 07:00:00       24.7        36.2         0.131              3.43
+    ##  9 2023-01-01 08:00:00       24.8        35.6         0.131              2.97
+    ## 10 2023-01-01 09:00:00       25.3        32.7         0.131              4.40
     ## # ℹ 136 more rows
 
 ## Predicting variable: observational data
@@ -192,16 +192,18 @@ The data now will be trained with the 2023-01-01 00:00:00 to 2023-01-03
 variables defined with T2.wrf, HR2.wrf, SMOIS.wrf and magViento.wrf:
 
 ``` r
-data.training <- data.table[1:which(data.table$Date == "2023-01-04 00:00:00"),]
+train.position <- which(data.table$Date == as.POSIXct("2023-01-04 00:00:00", tz = "UTC"))[1]
+
+data.training <- data.table[1:train.position, ]
 
 ml.model <- multiple.guidance(input.data = data.training,
                               predictand = 'HR2.obs',
-                              predictors = c('T2.wrf', 'HR2.wrf', 'SMOIS.wrf', 'magViento.wrf'))
+                              predictors = c('T2.wrf', 'HR2.wrf', 'magViento.wrf'))
 ml.model$coefficients
 ```
 
-    ##   (Intercept)        T2.wrf       HR2.wrf     SMOIS.wrf magViento.wrf 
-    ##   323.7753582    -1.1374126     0.5581659 -1737.2480993    -2.1171269
+    ##   (Intercept)        T2.wrf       HR2.wrf magViento.wrf 
+    ##    45.4171667    -0.1404637     0.6692733    -1.9627265
 
 Now, the parameters can be used to evaluate the model in any dataset.
 Here it is applied to the same training period:
@@ -209,7 +211,7 @@ Here it is applied to the same training period:
 ``` r
 train.eval <- mg.evaluation(input.data = data.training,
                             predictand = 'HR2.obs',
-                            predictors = c('T2.wrf', 'HR2.wrf', 'SMOIS.wrf', 'magViento.wrf'),
+                            predictors = c('T2.wrf', 'HR2.wrf', 'magViento.wrf'),
                             var.model = 'HR2.wrf',
                             lmodel = ml.model)
 ```
@@ -245,24 +247,56 @@ train.eval[[2]]
 ```
 
     ##              rmse       nash      corr       KGE
-    ## Model    30.65969 -0.5857673 0.6150601 0.2843344
-    ## Guidance 14.54833  0.6429492 0.8018411 0.7197610
+    ## Model    30.95942 -0.5371613 0.6151989 0.2966380
+    ## Guidance 19.49197  0.3906803 0.6250442 0.4697325
 
 ## Relative humidity calibration: Verification
 
-POST WILL CONTINUE….
+Now, the verification dataset is created
 
-<!-- ## Calibration of evaporation soil model output for a verification dataset -->
-<!-- The parameters of the previous section now are applied to the data.verification period. This period will be defined from 2017-01-01 to 2017-12-31. Then, the statistics parameters of the calibration in this dataset are shown: -->
-<!-- ```{r} -->
-<!-- data.verification <- data[which(data$Dates == "2017-01-01"):which(data$Dates == "2017-12-31"),] -->
-<!-- verif.eval <- mg.evaluation(input.data = data.verification, predictand = 'evapo_obs', -->
-<!--                             predictors = predictors.variables, -->
-<!--                             var.model = 'OUT_EVAP', -->
-<!--                             lmodel = ml.model) -->
-<!-- verif.eval[[2]] -->
-<!-- ``` -->
-<!-- Finally, the monthly plot of this dataset is displayed below: -->
-<!-- ```{r} -->
-<!-- ploting(daily2monthly(data = verif.eval[[1]])) -->
-<!-- ``` -->
+``` r
+verif.position <- which(data.table$Date == as.POSIXct("2023-01-04 00:00:00", tz = "UTC"))[2]
+data.verification <- data.table[verif.position:nrow(data.table), ]
+```
+
+The verification dataset is evaluated with the model created before with
+the training dataset
+
+``` r
+verif.eval <- mg.evaluation(input.data = data.verification,
+                            predictand = 'HR2.obs',
+                            predictors = c('T2.wrf', 'HR2.wrf', 'magViento.wrf'),
+                            var.model = 'HR2.wrf',
+                            lmodel = ml.model)
+verif.eval[[2]]
+```
+
+    ##              rmse       nash      corr       KGE
+    ## Model    18.23736 -0.4257539 0.6623169 0.4960543
+    ## Guidance 17.76432 -0.3527515 0.6900867 0.2518528
+
+Finally, the plot of the verification dataset is display
+
+``` r
+data.to.plot <- as_tibble(verif.eval[[1]])
+data.to.plot$Dates <- as.POSIXct(data.to.plot$Dates, format = "%Y-%m-%d %H:%M:%S")
+data.to.plot$observation <- as.numeric(data.to.plot$observation)
+data.to.plot$model <- as.numeric(data.to.plot$model)
+data.to.plot$guidance <- as.numeric(data.to.plot$guidance)
+
+figure <- ggplot(data = data.to.plot) +
+  geom_point(aes(Dates, observation), col = "black") +
+  geom_line(aes(Dates, model), col = "blue") +
+  geom_line(aes(Dates, guidance), col = "red") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(y = "HR2 (%)")
+
+print(figure)
+```
+
+![](../Page04_awswrfsmn_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+It is important to detect that the maximums are better represented after
+the calibration but the minimums are not. To have a more reliable
+calibration of the variable relative humidity, it should be trained with
+a greater amount of data.

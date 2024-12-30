@@ -59,7 +59,7 @@ The definition of each variable can be obtained from: <https://odp-aws-smn.githu
 
 The nc files are open with the terra package and separated in each variable:
 ```{r}
-files <- list.files(path = "./_includes/", pattern = "nc", full.names = TRUE)
+files <- list.files(path = "./_includes", pattern = "nc", full.names = TRUE)
 nc.files <- rast(files)
 
 T2 <- nc.files[[which(names(nc.files) == "T2")]]
@@ -119,11 +119,13 @@ colnames(data.table) <- c("Dates", "T2.wrf", "HR2.wrf", "SMOIS.wrf", "magViento.
 The data now will be trained with the 2023-01-01 00:00:00 to 2023-01-03 23:00:00 period using 'multiple.guidance' function with the predictors variables defined with T2.wrf, HR2.wrf, SMOIS.wrf and magViento.wrf:
 
 ```{r}
-data.training <- data.table[1:which(data.table$Date == "2023-01-04 00:00:00"),]
+train.position <- which(data.table$Date == as.POSIXct("2023-01-04 00:00:00", tz = "UTC"))[1]
+
+data.training <- data.table[1:train.position, ]
 
 ml.model <- multiple.guidance(input.data = data.training,
                               predictand = 'HR2.obs',
-                              predictors = c('T2.wrf', 'HR2.wrf', 'SMOIS.wrf', 'magViento.wrf'))
+                              predictors = c('T2.wrf', 'HR2.wrf', 'magViento.wrf'))
 ml.model$coefficients
 ```
 
@@ -131,7 +133,7 @@ Now, the parameters can be used to evaluate the model in any dataset. Here it is
 ```{r}
 train.eval <- mg.evaluation(input.data = data.training,
                             predictand = 'HR2.obs',
-                            predictors = c('T2.wrf', 'HR2.wrf', 'SMOIS.wrf', 'magViento.wrf'),
+                            predictors = c('T2.wrf', 'HR2.wrf', 'magViento.wrf'),
                             var.model = 'HR2.wrf',
                             lmodel = ml.model)
 ```
@@ -161,23 +163,38 @@ train.eval[[2]]
 
 ## Relative humidity calibration: Verification
 
-POST WILL CONTINUE....
+Now, the verification dataset is created
+```{r}
+verif.position <- which(data.table$Date == as.POSIXct("2023-01-04 00:00:00", tz = "UTC"))[2]
+data.verification <- data.table[verif.position:nrow(data.table), ]
+```
 
-<!-- ## Calibration of evaporation soil model output for a verification dataset -->
+The verification dataset is evaluated with the model created before with the training dataset
+```{r}
+verif.eval <- mg.evaluation(input.data = data.verification,
+                            predictand = 'HR2.obs',
+                            predictors = c('T2.wrf', 'HR2.wrf', 'magViento.wrf'),
+                            var.model = 'HR2.wrf',
+                            lmodel = ml.model)
+verif.eval[[2]]
+```
 
-<!-- The parameters of the previous section now are applied to the data.verification period. This period will be defined from 2017-01-01 to 2017-12-31. Then, the statistics parameters of the calibration in this dataset are shown: -->
-<!-- ```{r} -->
-<!-- data.verification <- data[which(data$Dates == "2017-01-01"):which(data$Dates == "2017-12-31"),] -->
+Finally, the plot of the verification dataset is display
+```{r, warning = FALSE}
+data.to.plot <- as_tibble(verif.eval[[1]])
+data.to.plot$Dates <- as.POSIXct(data.to.plot$Dates, format = "%Y-%m-%d %H:%M:%S")
+data.to.plot$observation <- as.numeric(data.to.plot$observation)
+data.to.plot$model <- as.numeric(data.to.plot$model)
+data.to.plot$guidance <- as.numeric(data.to.plot$guidance)
 
-<!-- verif.eval <- mg.evaluation(input.data = data.verification, predictand = 'evapo_obs', -->
-<!--                             predictors = predictors.variables, -->
-<!--                             var.model = 'OUT_EVAP', -->
-<!--                             lmodel = ml.model) -->
+figure <- ggplot(data = data.to.plot) +
+  geom_point(aes(Dates, observation), col = "black") +
+  geom_line(aes(Dates, model), col = "blue") +
+  geom_line(aes(Dates, guidance), col = "red") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(y = "HR2 (%)")
 
-<!-- verif.eval[[2]] -->
-<!-- ``` -->
+print(figure)
+```
 
-<!-- Finally, the monthly plot of this dataset is displayed below: -->
-<!-- ```{r} -->
-<!-- ploting(daily2monthly(data = verif.eval[[1]])) -->
-<!-- ``` -->
+It is important to detect that the maximums are better represented after the calibration but the minimums are not. To have a more reliable calibration of the variable relative humidity, it should be trained with a greater amount of data.
