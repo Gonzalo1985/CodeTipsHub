@@ -237,7 +237,7 @@ figure <- ggplot(data = data.to.plot) +
 print(figure)
 ```
 
-![](../Page04_awswrfsmn_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](../figures/2024-12-04/unnamed-chunk-14-1.png)<!-- -->
 
 The second element of the list ‘train.eval’ has the statistics
 parameters of the calibration:
@@ -294,7 +294,7 @@ figure <- ggplot(data = data.to.plot) +
 print(figure)
 ```
 
-![](../Page04_awswrfsmn_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](../figures/2024-12-04/unnamed-chunk-18-1.png)<!-- -->
 
 It is important to detect that the maximums are better represented after
 the calibration but the minimums are not. To have a more reliable
