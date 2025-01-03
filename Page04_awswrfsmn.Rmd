@@ -116,7 +116,7 @@ colnames(data.table) <- c("Dates", "T2.wrf", "HR2.wrf", "SMOIS.wrf", "magViento.
 
 ## Relative humidity calibration: Training
 
-The data now will be trained with the 2023-01-01 00:00:00 to 2023-01-03 23:00:00 period using 'multiple.guidance' function with the predictors variables defined with T2.wrf, HR2.wrf, SMOIS.wrf and magViento.wrf:
+The data now will be trained with the 2023-01-01 00:00:00 to 2023-01-04 00:00:00 period using 'multiple.guidance' function with the predictors variables defined with T2.wrf, HR2.wrf and magViento.wrf, and the predictand will be the HR2.obs variable:
 
 ```{r}
 train.position <- which(data.table$Date == as.POSIXct("2023-01-04 00:00:00", tz = "UTC"))[1]

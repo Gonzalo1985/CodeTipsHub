@@ -140,16 +140,16 @@ data.table
     ## # A tibble: 146 × 5
     ##    Date                T2.wrf[,1] HR2.wrf[,1] SMOIS.wrf[,1] magViento.wrf[,1]
     ##    <dttm>                   <dbl>       <dbl>         <dbl>             <dbl>
-    ##  1 2023-01-01 00:00:00       31.2        28.0         0.131              1.85
-    ##  2 2023-01-01 01:00:00       30.1        32.7         0.131              1.97
-    ##  3 2023-01-01 02:00:00       27.9        34.7         0.131              3.12
-    ##  4 2023-01-01 03:00:00       26.8        35.5         0.131              3.20
-    ##  5 2023-01-01 04:00:00       25.7        38.0         0.131              3.26
-    ##  6 2023-01-01 05:00:00       24.7        39.5         0.131              3.75
-    ##  7 2023-01-01 06:00:00       23.2        42.1         0.131              3.33
-    ##  8 2023-01-01 07:00:00       24.7        36.2         0.131              3.43
-    ##  9 2023-01-01 08:00:00       24.8        35.6         0.131              2.97
-    ## 10 2023-01-01 09:00:00       25.3        32.7         0.131              4.40
+    ##  1 2023-01-01 00:00:00       31.2        28.1         0.131              1.97
+    ##  2 2023-01-01 01:00:00       30.0        33.2         0.131              1.99
+    ##  3 2023-01-01 02:00:00       27.9        35.0         0.131              3.06
+    ##  4 2023-01-01 03:00:00       26.8        35.4         0.131              3.15
+    ##  5 2023-01-01 04:00:00       25.7        37.9         0.131              3.20
+    ##  6 2023-01-01 05:00:00       24.7        39.5         0.131              3.73
+    ##  7 2023-01-01 06:00:00       23.1        42.1         0.131              3.29
+    ##  8 2023-01-01 07:00:00       24.6        36.5         0.131              3.26
+    ##  9 2023-01-01 08:00:00       24.8        36.4         0.131              2.56
+    ## 10 2023-01-01 09:00:00       25.4        32.1         0.131              4.84
     ## # ℹ 136 more rows
 
 ## Predicting variable: observational data
@@ -187,9 +187,10 @@ colnames(data.table) <- c("Dates", "T2.wrf", "HR2.wrf", "SMOIS.wrf", "magViento.
 
 ## Relative humidity calibration: Training
 
-The data now will be trained with the 2023-01-01 00:00:00 to 2023-01-03
-23:00:00 period using ‘multiple.guidance’ function with the predictors
-variables defined with T2.wrf, HR2.wrf, SMOIS.wrf and magViento.wrf:
+The data now will be trained with the 2023-01-01 00:00:00 to 2023-01-04
+00:00:00 period using ‘multiple.guidance’ function with the predictors
+variables defined with T2.wrf, HR2.wrf and magViento.wrf, and the
+predictand will be the HR2.obs variable:
 
 ``` r
 train.position <- which(data.table$Date == as.POSIXct("2023-01-04 00:00:00", tz = "UTC"))[1]
@@ -203,7 +204,7 @@ ml.model$coefficients
 ```
 
     ##   (Intercept)        T2.wrf       HR2.wrf magViento.wrf 
-    ##    45.4171667    -0.1404637     0.6692733    -1.9627265
+    ##    46.0634539    -0.1961508     0.6528048    -1.5827546
 
 Now, the parameters can be used to evaluate the model in any dataset.
 Here it is applied to the same training period:
@@ -247,8 +248,8 @@ train.eval[[2]]
 ```
 
     ##              rmse       nash      corr       KGE
-    ## Model    30.95942 -0.5371613 0.6151989 0.2966380
-    ## Guidance 19.49197  0.3906803 0.6250442 0.4697325
+    ## Model    30.94816 -0.5360429 0.6164973 0.2904141
+    ## Guidance 19.50799  0.3896786 0.6242425 0.4685986
 
 ## Relative humidity calibration: Verification
 
@@ -272,8 +273,8 @@ verif.eval[[2]]
 ```
 
     ##              rmse       nash      corr       KGE
-    ## Model    18.23736 -0.4257539 0.6623169 0.4960543
-    ## Guidance 17.76432 -0.3527515 0.6900867 0.2518528
+    ## Model    18.27978 -0.4323953 0.6617402 0.4928344
+    ## Guidance 17.64314 -0.3343579 0.6919824 0.2580028
 
 Finally, the plot of the verification dataset is display
 
