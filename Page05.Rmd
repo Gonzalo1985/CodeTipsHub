@@ -1,0 +1,133 @@
+---
+title: Calibration: tidymodels vs aws.wrfsmn
+layout: post
+subtitle: Gonzalo M. Díaz
+leafletmap: true
+always_allow_html: yes
+last_modified_at: 2026-03-28
+output: 
+  md_document:
+    variant: gfm
+    preserve_yaml: true
+---
+
+Post for calibration of soil model evaporation output from machine learning models of tidymodels package and aws.wrfsmn package
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data preparation
+
+Library that are going to be used:
+
+```{r, echo=FALSE}
+library('tidymodels')
+library('glmnet')
+library('aws.wrfsmn')
+```
+
+The example data to use will be ‘eva’ again and can be visualize:
+
+```{r}
+options(width = 200)
+head(eva)
+```
+
+As a reminder, the dataset contains multiple columns representing different hydrometeorological variables — such as precipitation, evaporation, runoff, and soil moisture, among others. All variables are derived from the VIC (Variable Infiltration Capacity) model (see documentation, <https://vic.readthedocs.io/en/master/Overview/ModelOverview/>), with the exception of the evapo_obs column, which corresponds to observed evaporation data for the same location. The dataset spans from 2015-01-01 to 2017-12-31.
+
+## Definition of predictors variables
+
+The variables chosen for adjustment can be any of those modeled. Here they will be:
+
+```{r}
+predictors.variables <- c('OUT_PREC', 'OUT_EVAP', 'OUT_RUNOFF', 'OUT_BASEFLOW',
+                          'OUT_SOIL_MOIST_lyr_1', 'OUT_SURF_TEMP')
+```
+
+There is no limit on which variables to take, they could be more or less depending on what the user wants.
+
+## Definition of parameters of the Multiple Linear Regression
+
+The data now will be trained with the 2015-01-01 to 2017-12-31 period using 'multiple.guidance' function from the `aws.wrfsmn` package:
+
+```{r}
+data <- eva
+
+ml.model <- multiple.guidance(input.data = data,
+                              predictand = 'evapo_obs',
+                              predictors = predictors.variables)
+ml.model$coefficients
+```
+
+Now the data will be trained using the **GLMNET model** from the `tidymodels` framework in R.
+
+```{r}
+# Define the GLMNET model
+glmn_model <- linear_reg(
+  penalty = tune(),
+  mixture = tune()
+) %>%
+  set_engine("glmnet") %>%
+  set_mode("regression")
+
+# Create a recipe
+glmn_recipe <- recipe(evapo_obs ~ ., data = data) %>%
+  update_role(Dates, new_role = "ID") %>%
+  step_naomit(all_predictors(), all_outcomes()) %>%
+  step_normalize(all_predictors())
+
+# Create a workflow
+glmn_workflow <- workflow() %>%
+  add_recipe(glmn_recipe) %>%
+  add_model(glmn_model)
+
+# Define resampling strategy (e.g., cross-validation)
+cv_folds <- vfold_cv(data, v = 5)
+
+# Tune hyperparameters
+glmn_tune <- tune_grid(
+  glmn_workflow,
+  resamples = cv_folds,
+  grid = 20
+)
+
+# Select the best model
+best_glmn <- select_best(glmn_tune, metric = "rmse")
+
+# Finalize the workflow
+final_glmn <- finalize_workflow(glmn_workflow, best_glmn)
+
+# Fit the final model on the data
+glmn_fit <- final_glmn %>%
+  fit(data = data)
+
+# Evaluate on test data
+glmn_results <- glmn_fit %>%
+  predict(data) %>%
+  bind_cols(data) %>%
+  metrics(truth = evapo_obs, estimate = .pred)
+
+print(glmn_results)
+```
+
+## Calibration of evaporation soil model output for a verification dataset
+
+The parameters of the previous section now are applied to the data.verification period. This period will be defined from 2017-01-01 to 2017-12-31. Then, the statistics parameters of the calibration in this dataset are shown:
+
+```{r}
+data.verification <- data[which(data$Dates == "2017-01-01"):which(data$Dates == "2017-12-31"),]
+
+verif.eval <- mg.evaluation(input.data = data.verification, predictand = 'evapo_obs',
+                            predictors = predictors.variables,
+                            var.model = 'OUT_EVAP',
+                            lmodel = ml.model)
+
+verif.eval[[2]]
+```
+
+Finally, the monthly plot of this dataset is displayed below:
+
+```{r}
+ploting(daily2monthly(data = verif.eval[[1]]))
+```
