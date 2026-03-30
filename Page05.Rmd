@@ -25,6 +25,8 @@ Library that are going to be used:
 library('tidymodels')
 library('glmnet')
 library('aws.wrfsmn')
+library('zoo')
+library('hydroTSM')
 ```
 
 The example data to use will be ‘eva’ again and can be visualize:
@@ -47,7 +49,7 @@ predictors.variables <- c('OUT_PREC', 'OUT_EVAP', 'OUT_RUNOFF', 'OUT_BASEFLOW',
 
 There is no limit on which variables to take, they could be more or less depending on what the user wants.
 
-## Definition of parameters of the Multiple Linear Regression
+## Definition of parameters and models
 
 The data now will be trained with the 2015-01-01 to 2017-12-31 period using 'multiple.guidance' function from the `aws.wrfsmn` package:
 
@@ -58,6 +60,13 @@ ml.model <- multiple.guidance(input.data = data,
                               predictand = 'evapo_obs',
                               predictors = predictors.variables)
 ml.model$coefficients
+
+verif.eval <- mg.evaluation(input.data = data, predictand = 'evapo_obs',
+                            predictors = predictors.variables,
+                            var.model = 'OUT_EVAP',
+                            lmodel = ml.model)
+
+verif.eval[[2]]
 ```
 
 Now the data will be trained using the **GLMNET model** from the `tidymodels` framework in R.
@@ -111,23 +120,50 @@ glmn_results <- glmn_fit %>%
 print(glmn_results)
 ```
 
-## Calibration of evaporation soil model output for a verification dataset
+## Plots of models
 
-The parameters of the previous section now are applied to the data.verification period. This period will be defined from 2017-01-01 to 2017-12-31. Then, the statistics parameters of the calibration in this dataset are shown:
+Now the results of the model ran with `aws.wrfsmn` are taken and transformed to monthly data. Note that the daily2monthly used here is from the `aws.wrfsmn` package:
 
 ```{r}
-data.verification <- data[which(data$Dates == "2017-01-01"):which(data$Dates == "2017-12-31"),]
+model.awswrfsmn <- mg.evaluation(input.data = data,
+                                 predictand = 'evapo_obs',
+                                 predictors = predictors.variables,
+                                 var.model = 'OUT_EVAP',
+                                 lmodel = ml.model)
 
-verif.eval <- mg.evaluation(input.data = data.verification, predictand = 'evapo_obs',
-                            predictors = predictors.variables,
-                            var.model = 'OUT_EVAP',
-                            lmodel = ml.model)
-
-verif.eval[[2]]
+multiple.monthly <- aws.wrfsmn::daily2monthly(model.awswrfsmn[[1]])
 ```
 
-Finally, the monthly plot of this dataset is displayed below:
+The prediction of the GLMNET model also is transformed to monthly data with hydroTSM and zoo libraries. Note that the daily2monthly used here is from the `hydroTSM` package:
 
 ```{r}
-ploting(daily2monthly(data = verif.eval[[1]]))
+model.glmnet <- glmn_fit %>% predict(data)
+
+# Create data frame
+model.glmnet <- data.frame(Dates = data$Dates, glmnet = model.glmnet)
+
+# Transform to zoo type
+glmnet.zoo <- zoo(model.glmnet$.pred, order.by = as.Date(model.glmnet$Dates))
+
+# Aggregate to monthly
+glmnet.monthly <- hydroTSM::daily2monthly(glmnet.zoo, FUN = mean)
+```
+
+Unify the data in one and only data frame
+
+```{r}
+data.to.print <- cbind(multiple.monthly, glmnet.monthly)
+head(data.to.print)
+```
+
+Finally, the monthly plot of the models are displayed below:
+
+```{r}
+
+ggplot(data.to.print) +
+  geom_line(aes(Dates, observation)) +
+  geom_line(aes(Dates, model)) +
+  geom_line(aes(Dates, guidance))
+  #geom_line(aes(Dates, glmnet.monthly))
+
 ```
