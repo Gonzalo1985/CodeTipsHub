@@ -1,0 +1,265 @@
+---
+title: Calibration - tidymodels vs aws.wrfsmn
+layout: post
+subtitle: Gonzalo M. Díaz
+leafletmap: true
+always_allow_html: yes
+last_modified_at: 2026-03-31
+output: 
+  md_document:
+    variant: gfm
+    preserve_yaml: true
+---
+
+Post for calibration of soil model evaporation output from machine
+learning models of tidymodels package and aws.wrfsmn package
+
+## Data preparation
+
+Library that are going to be used:
+
+The example data to use will be ‘eva’ again and can be visualize:
+
+``` r
+options(width = 200)
+head(eva)
+```
+
+    ##        Dates evapo_obs OUT_PREC OUT_EVAP OUT_RUNOFF OUT_BASEFLOW OUT_SOIL_MOIST_lyr_1 OUT_EVAP_CANOP OUT_SURF_TEMP
+    ## 1 2015-01-01       7.5    2.829   1.6771     0.3699       0.0017              25.2455         0.0000       29.8297
+    ## 2 2015-01-02      10.5    0.065   1.2188     0.0000       0.0017              24.8014         0.2505       22.5682
+    ## 3 2015-01-03       6.8    0.000   1.4352     0.0000       0.0017              24.2769         0.0000       25.3413
+    ## 4 2015-01-04       6.7    1.107   1.3349     0.1247       0.0017              24.5836         0.0000       27.9340
+    ## 5 2015-01-05       6.6    0.165   1.8848     0.0000       0.0017              24.0370         0.3505       29.7361
+    ## 6 2015-01-06      11.1    0.000   1.7053     0.0000       0.0017              23.4706         0.0000       31.6070
+
+As a reminder, the dataset contains multiple columns representing
+different hydrometeorological variables — such as precipitation,
+evaporation, runoff, and soil moisture, among others. All variables are
+derived from the VIC (Variable Infiltration Capacity) model (see
+documentation,
+<https://vic.readthedocs.io/en/master/Overview/ModelOverview/>), with
+the exception of the evapo_obs column, which corresponds to observed
+evaporation data for the same location. The dataset spans from
+2015-01-01 to 2017-12-31.
+
+## Definition of predictors variables
+
+The variables chosen for adjustment can be any of those modeled. Here
+they will be:
+
+``` r
+predictors.variables <- c('OUT_PREC', 'OUT_EVAP', 'OUT_RUNOFF', 'OUT_BASEFLOW',
+                          'OUT_SOIL_MOIST_lyr_1', 'OUT_SURF_TEMP')
+```
+
+There is no limit on which variables to take, they could be more or less
+depending on what the user wants.
+
+## Definition of models
+
+The data now will be trained with the 2015-01-01 to 2017-12-31 period
+using ‘multiple.guidance’ function from the `aws.wrfsmn` package. This
+implementation relies on a multivariate linear regression model to
+predict the output variable.
+
+``` r
+data <- eva
+
+mlr.model <- multiple.guidance(input.data = data,
+                               predictand = 'evapo_obs',
+                               predictors = predictors.variables)
+
+verif.eval <- mg.evaluation(input.data = data, predictand = 'evapo_obs',
+                            predictors = predictors.variables,
+                            var.model = 'OUT_EVAP',
+                            lmodel = mlr.model)
+```
+
+On the other hand, the `parsnip` package provides a complete list of all
+models available within the `tidymodels` ecosystem.
+
+``` r
+models <- get_from_env("models")
+
+kable(data.frame(Models = models), caption = "Available models in parsnip")
+```
+
+| Models               |
+|:---------------------|
+| auto_ml              |
+| bag_mars             |
+| bag_mlp              |
+| bag_tree             |
+| bart                 |
+| boost_tree           |
+| C5_rules             |
+| cubist_rules         |
+| decision_tree        |
+| discrim_flexible     |
+| discrim_linear       |
+| discrim_quad         |
+| discrim_regularized  |
+| gen_additive_mod     |
+| linear_reg           |
+| logistic_reg         |
+| mars                 |
+| mlp                  |
+| multinom_reg         |
+| naive_Bayes          |
+| nearest_neighbor     |
+| null_model           |
+| pls                  |
+| poisson_reg          |
+| proportional_hazards |
+| rand_forest          |
+| rule_fit             |
+| surv_reg             |
+| survival_reg         |
+| svm_linear           |
+| svm_poly             |
+| svm_rbf              |
+
+Available models in parsnip
+
+From this list, we can select the model that best suits our specific
+problem or application. In this case, we will use a **Support Vector
+Machine (SVM)** polinomial model (svm_poly). Now the data will be
+trained using the **SVM model** from the `tidymodels` framework in R.
+
+``` r
+# Define the model from table
+svm_poly_kernlab_spec <- svm_poly(cost = tune(), degree = tune(),
+                                  scale_factor = tune(), margin = tune()) %>%
+  set_engine('kernlab') %>%
+  set_mode('regression')
+
+# Create a recipe
+svm_recipe <- recipe(evapo_obs ~ ., data = data) %>%
+  update_role(Dates, new_role = "ID") %>%
+  step_naomit(all_predictors(), all_outcomes()) %>%
+  step_normalize(all_predictors())
+
+# Create a workflow
+svm_workflow <- workflow() %>%
+  add_recipe(svm_recipe) %>%
+  add_model(svm_poly_kernlab_spec)
+
+# Define resampling strategy (e.g., cross-validation)
+cv_folds <- vfold_cv(data, v = 5)
+
+# Tune hyperparameters
+svm_tune <- tune_grid(
+  svm_workflow,
+  resamples = cv_folds,
+  grid = 20
+)
+
+# Select the best model
+best_svm <- select_best(svm_tune, metric = "rmse")
+
+# Finalize the workflow
+final_svm <- finalize_workflow(svm_workflow, best_svm)
+
+# Fit the final model on the data
+svm_fit <- final_svm %>%
+  fit(data = data)
+
+# Evaluate on test data
+svm_results <- svm_fit %>%
+  predict(data) %>%
+  bind_cols(data) %>%
+  metrics(truth = evapo_obs, estimate = .pred)
+```
+
+In the next section some of the svm_results will be shown.
+
+## Plots of models
+
+Now the results of the model ran with `aws.wrfsmn` are taken and
+transformed to monthly data. Note that the daily2monthly used here is
+from the `aws.wrfsmn` package:
+
+``` r
+model.awswrfsmn <- mg.evaluation(input.data = data,
+                                 predictand = 'evapo_obs',
+                                 predictors = predictors.variables,
+                                 var.model = 'OUT_EVAP',
+                                 lmodel = mlr.model)
+
+multiple.monthly <- aws.wrfsmn::daily2monthly(model.awswrfsmn[[1]])
+```
+
+The prediction of the SVM model also is transformed to monthly data with
+`hydroTSM` and `zoo` libraries. Note that the daily2monthly used here is
+from the `hydroTSM` package:
+
+``` r
+model.svm <- svm_fit %>% predict(data)
+
+# Create data frame
+model.svm <- data.frame(Dates = data$Dates, glmnet = model.svm)
+
+# Transform to zoo type
+svm.zoo <- zoo(model.svm$.pred, order.by = as.Date(model.svm$Dates))
+
+# Aggregate to monthly
+svm.monthly <- hydroTSM::daily2monthly(svm.zoo, FUN = mean)
+```
+
+Unify the data in one and only data frame
+
+``` r
+data.to.print <- cbind(multiple.monthly, svm.monthly)
+head(data.to.print)
+```
+
+    ##                 Dates observation    model guidance svm.monthly
+    ## 2015-01-01 2015-01-01    8.688889 2.805019 8.589882    7.844378
+    ## 2015-02-01 2015-02-01    7.573077 2.514243 8.314858    7.868759
+    ## 2015-03-01 2015-03-01    6.368966 3.041319 7.943497    7.604326
+    ## 2015-04-01 2015-04-01    4.642857 3.099540 6.987871    6.397784
+    ## 2015-05-01 2015-05-01    3.100000 1.946400 5.655301    5.110608
+    ## 2015-06-01 2015-06-01    3.040000 1.473017 5.330349    4.778339
+
+Finally, the monthly plot of the models are displayed below:
+
+``` r
+ggplot(data.to.print) +
+  geom_line(aes(Dates, observation, color = "Observed")) +
+  geom_line(aes(Dates, model, color = "VIC Model")) +
+  geom_line(aes(Dates, guidance, color = "MLR Model")) +
+  geom_line(aes(Dates, svm.monthly, color = "SVM Poly Model")) +
+  scale_color_manual(values = c(
+    "Observed"  = "black",
+    "VIC Model"     = "steelblue",
+    "MLR Model"  = "tomato",
+    "SVM Poly Model"    = "seagreen"
+  )) +
+  labs(color = "Legend") +
+  theme_minimal()
+```
+
+![](Page05_tidymodels_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+From the plot, we can observe that the model that best represents the
+temporal evolution of observed evaporation is the multivariate linear
+model from the `aws.wrfsmn` package, primarily due to its improved
+representation of peak values. Nevertheless, the SVM model also produces
+an improvement in the representation of evaporation compared to the raw
+output of the VIC model (blue line). It is essential to apply bias
+corrections to the raw outputs of mathematical models in order to
+achieve a better representation of reality.
+
+Finally, as a closing analysis, the Root Mean Square Error (RMSE) for
+each of the three models is presented below:
+
+``` r
+kable(data.frame(RMSE.VIC = verif.eval[[2]]$rmse[1],
+                 RMSE.MLR = verif.eval[[2]]$rmse[2],
+                 RMSE.SVM = svm_results$.estimate[1]))
+```
+
+| RMSE.VIC | RMSE.MLR | RMSE.SVM |
+|---------:|---------:|---------:|
+| 5.381191 |  3.09017 | 3.143236 |
