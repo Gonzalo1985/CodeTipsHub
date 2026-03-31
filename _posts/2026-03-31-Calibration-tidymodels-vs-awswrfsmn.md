@@ -14,6 +14,7 @@ output:
 Post for calibration of soil model evaporation output from machine
 learning models of tidymodels package and aws.wrfsmn package
 
+
 ## Data preparation
 
 Library that are going to be used:
@@ -240,7 +241,7 @@ ggplot(data.to.print) +
   theme_minimal()
 ```
 
-![](Page05_tidymodels_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](../figures/2026-03-31/unnamed-chunk-10-1.png)<!-- -->
 
 From the plot, we can observe that the model that best represents the
 temporal evolution of observed evaporation is the multivariate linear

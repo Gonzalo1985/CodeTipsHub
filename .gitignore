@@ -5,4 +5,7 @@
 CodeTipsHub.Rproj
 WRFDETAR_01H_*
 
+# Folders
 data/sunchales.csv
+Page01_R_files/
+Page05_tidymodels_files/
